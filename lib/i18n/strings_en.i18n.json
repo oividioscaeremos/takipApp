@@ -1,0 +1,10 @@
+{
+  "loginScreen" : {
+    "title"       : "Login Screen",
+    "welcome"     : "Welcome to TrackShows App!",
+    "username"    : "Username:",
+    "password"    : "Password:",
+    "login"       : "Login"
+  }
+}
+

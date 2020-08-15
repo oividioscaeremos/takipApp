@@ -1,0 +1,9 @@
+{
+  "loginScreen" : {
+      "title"      : "Giriş Ekranı",
+      "welcome"    : "DiziTakip'e Hoşgeldin!",
+      "username"   : "Kullanıcı Adı:",
+      "password"   : "Şifre:",
+      "login"      : "Giriş Yap"
+  }
+}
