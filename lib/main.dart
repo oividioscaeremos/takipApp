@@ -18,6 +18,11 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   String emailAddress;
   String password;
+  Color _usernameColor = Palette().grey;
+  Color _pwdColor = Palette().grey;
+
+  FocusNode _A = new FocusNode();
+  FocusNode _B = new FocusNode();
 
   @override
   void initState() {
@@ -26,6 +31,9 @@ class _LoginScreenState extends State<LoginScreen> {
     String localeStr =
         LocaleSettings.currentLocale.toLowerCase() == 'tr' ? 'tr' : 'en';
     LocaleSettings.setLocale(localeStr);
+
+    _A.addListener(_onFocusChange);
+    _B.addListener(_onFocusChange);
   }
 
   bool validateEmail() {
@@ -35,6 +43,21 @@ class _LoginScreenState extends State<LoginScreen> {
   void onChangeEmail(String _str) {
     print(_str);
     emailAddress = _str;
+  }
+
+  void _onFocusChange() {
+    setState(() {
+      if (_A.hasFocus) {
+        _usernameColor = Palette().grey.withOpacity(0.7);
+        _pwdColor = Palette().grey;
+      } else if (_B.hasFocus) {
+        _usernameColor = Palette().grey;
+        _pwdColor = Palette().grey.withOpacity(0.7);
+      } else {
+        _usernameColor = Palette().grey;
+        _pwdColor = Palette().grey;
+      }
+    });
   }
 
   @override
@@ -56,7 +79,7 @@ class _LoginScreenState extends State<LoginScreen> {
           },
           child: Container(
             width: MediaQuery.of(context).size.width,
-            color: Colors.white,
+            color: Palette().darkGrey,
             child: SafeArea(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
@@ -66,23 +89,25 @@ class _LoginScreenState extends State<LoginScreen> {
                     height: SizeConfig.safeBlockVertical * 5,
                   ),
                   InputBox(
+                    focusNode: _A,
                     labelText: t.loginScreen.username,
                     id: 'email',
                     validate: validateEmail,
                     onChanged: onChangeEmail,
-                    bgColor: Palette().grey,
+                    bgColor: _usernameColor,
                     onEnabledbgColor: Palette().grey.withOpacity(0.9),
                   ),
                   SizedBox(
                     height: 10,
                   ),
                   InputBox(
+                    focusNode: _B,
                     labelText: t.loginScreen.password,
                     id: 'password',
                     validate: validateEmail,
                     onChanged: onChangeEmail,
-                    bgColor: Palette().grey,
-                    onEnabledbgColor: Palette().grey.withOpacity(0.5),
+                    bgColor: _pwdColor,
+                    onEnabledbgColor: Palette().grey.withOpacity(0.9),
                   ),
                   Text(
                     t.loginScreen.login,

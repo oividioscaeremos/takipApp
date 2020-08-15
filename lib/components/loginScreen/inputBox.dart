@@ -9,6 +9,7 @@ class InputBox extends StatefulWidget {
   final String id;
   final Function validate;
   final Function onChanged;
+  final FocusNode focusNode;
   Color bgColor;
   Color onEnabledbgColor;
 
@@ -18,7 +19,8 @@ class InputBox extends StatefulWidget {
       this.validate,
       this.onChanged,
       this.bgColor,
-      this.onEnabledbgColor});
+      this.onEnabledbgColor,
+      this.focusNode});
 
   @override
   _InputBoxState createState() => _InputBoxState();
@@ -36,15 +38,11 @@ class _InputBoxState extends State<InputBox> {
         color: widget.bgColor,
       ),
       child: TextFormField(
+        focusNode: widget.focusNode,
         style: TextStyle(
           letterSpacing: 2,
           color: Palette().white,
         ),
-        onEditingComplete: () {
-          setState(() {
-            widget.bgColor = widget.bgColor;
-          });
-        },
         decoration: InputDecoration(
           labelText: widget.labelText,
           labelStyle: TextStyle(
