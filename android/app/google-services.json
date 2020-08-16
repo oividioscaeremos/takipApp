@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "550057129395",
+    "firebase_url": "https://takipapp-27865.firebaseio.com",
+    "project_id": "takipapp-27865",
+    "storage_bucket": "takipapp-27865.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:550057129395:android:0ba03e6674f9c98be947c6",
+        "android_client_info": {
+          "package_name": "com.ilkeratabay.dizi_takip"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "550057129395-68ma4j3vlid2pcq26rjtd9dbkft8nsck.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBJSZnlwvZU-i67ELPlHfpPV-_HyP9iWMk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "550057129395-68ma4j3vlid2pcq26rjtd9dbkft8nsck.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
