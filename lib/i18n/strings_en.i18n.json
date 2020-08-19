@@ -1,4 +1,14 @@
 {
+  "global"       : {
+
+  },
+  "registerScreen" : {
+    "title"         : "Register Screen",
+    "register"      : "Register",
+    "username"      : "Username",
+    "emailAddress"  : "E-Mail",
+    "password"      : "Password"
+  },
   "loginScreen" : {
     "title"       : "Login Screen",
     "welcome"     : "Welcome to TrackShows App!",

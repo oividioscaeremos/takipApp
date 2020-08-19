@@ -1,9 +1,19 @@
 {
+  "global"       : {
+
+  },
+  "registerScreen" : {
+    "title"         : "Kayıt Ekranı",
+    "register"      : "Kayıt Ol",
+    "username"      : "Kullanıcı Adı",
+    "emailAddress"  : "E-Mail",
+    "password"      : "Şifre"
+  },
   "loginScreen" : {
-      "title"      : "Giriş Ekranı",
-      "welcome"    : "DiziTakip'e Hoşgeldin!",
-      "username"   : "Kullanıcı Adı:",
-      "password"   : "Şifre:",
-      "login"      : "Giriş Yap"
+    "title"      : "Giriş Ekranı",
+    "welcome"    : "DiziTakip'e Hoşgeldin!",
+    "username"   : "Kullanıcı Adı",
+    "password"   : "Şifre",
+    "login"      : "Giriş Yap"
   }
 }
