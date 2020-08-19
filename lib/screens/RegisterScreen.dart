@@ -2,6 +2,7 @@ import 'package:dizi_takip/classes/Palette.dart';
 import 'package:dizi_takip/classes/SizeConfig.dart';
 import 'package:dizi_takip/components/loginScreen/inputBox.dart';
 import 'package:dizi_takip/i18n/strings.g.dart';
+import 'package:dizi_takip/screens/LoginScreen.dart';
 import 'package:flutter/material.dart';
 
 class RegisterScreen extends StatefulWidget {
@@ -55,6 +56,29 @@ class _RegisterScreenState extends State<RegisterScreen> {
         _pwdColor = Palette().grey;
       }
     });
+  }
+
+  Route _createRoute() {
+    return PageRouteBuilder(
+      pageBuilder: (context, animation, secondaryAnimation) => LoginScreen(),
+      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+        var begin = Offset(0.0, 1.0);
+        var end = Offset.zero;
+        var curve = Curves.decelerate;
+
+        var tween = Tween(begin: begin, end: end);
+        var offsetAnimation = animation.drive(tween);
+        var curvedAnimation = CurvedAnimation(
+          parent: animation,
+          curve: curve,
+        );
+
+        return SlideTransition(
+          position: tween.animate(curvedAnimation),
+          child: child,
+        );
+      },
+    );
   }
 
   @override
@@ -112,8 +136,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   SizedBox(
                     height: SizeConfig.safeBlockVertical * 5,
                   ),
-                  Text(
-                    t.loginScreen.login,
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.of(context).push(_createRoute());
+                    },
+                    child: Text(
+                      t.loginScreen.login,
+                    ),
                   )
                 ],
               ),
