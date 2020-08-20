@@ -23,10 +23,6 @@ class _DiziTakipAppState extends State<DiziTakipApp> {
   void initState() {
     super.initState();
 
-    String localeStr =
-        LocaleSettings.currentLocale.toLowerCase() == 'tr' ? 'tr' : 'en';
-    LocaleSettings.setLocale(localeStr);
-
     SystemChrome.setSystemUIOverlayStyle(
       SystemUiOverlayStyle(
         systemNavigationBarColor: Palette().darkGrey,
@@ -35,6 +31,14 @@ class _DiziTakipAppState extends State<DiziTakipApp> {
         statusBarIconBrightness: Brightness.light,
       ),
     );
+
+    LocaleSettings.useDeviceLocale().whenComplete((){
+      if(LocaleSettings.currentLocale.contains("tr")){
+        LocaleSettings.setLocale("tr");
+      }else {
+        LocaleSettings.setLocale("en");
+      }
+    });
   }
 
 
@@ -44,9 +48,6 @@ class _DiziTakipAppState extends State<DiziTakipApp> {
     SizeConfig().init(context);
 
     return MaterialApp(
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
       initialRoute: RegisterScreen.id,
       routes: {
         RegisterScreen.id: (context) => RegisterScreen(),

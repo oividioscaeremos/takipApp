@@ -10,6 +10,7 @@ class InputBox extends StatefulWidget {
   final Function validate;
   final Function onChanged;
   final FocusNode focusNode;
+  final IconData prefixIcon;
   Color bgColor;
   Color onEnabledbgColor;
 
@@ -20,7 +21,8 @@ class InputBox extends StatefulWidget {
       this.onChanged,
       this.bgColor,
       this.onEnabledbgColor,
-      this.focusNode});
+      this.focusNode,
+      this.prefixIcon});
 
   @override
   _InputBoxState createState() => _InputBoxState();
@@ -44,6 +46,10 @@ class _InputBoxState extends State<InputBox> {
           color: Palette().white,
         ),
         decoration: InputDecoration(
+          prefixIcon: Icon(
+            widget.prefixIcon,
+            color: Palette().red,
+          ),
           labelText: widget.labelText,
           labelStyle: TextStyle(
             color: Palette().white,

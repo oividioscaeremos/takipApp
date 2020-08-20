@@ -3,6 +3,7 @@ import 'package:dizi_takip/classes/SizeConfig.dart';
 import 'package:dizi_takip/components/loginScreen/inputBox.dart';
 import 'package:dizi_takip/i18n/strings.g.dart';
 import 'package:dizi_takip/screens/LoginScreen.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class RegisterScreen extends StatefulWidget {
@@ -15,22 +16,21 @@ class RegisterScreen extends StatefulWidget {
 class _RegisterScreenState extends State<RegisterScreen> {
   String emailAddress;
   String password;
+  Color _emailColor = Palette().grey;
   Color _usernameColor = Palette().grey;
   Color _pwdColor = Palette().grey;
 
   FocusNode _A = new FocusNode();
   FocusNode _B = new FocusNode();
+  FocusNode _C = new FocusNode();
 
   @override
   void initState() {
     super.initState();
 
-    String localeStr =
-    LocaleSettings.currentLocale.toLowerCase() == 'tr' ? 'tr' : 'en';
-    LocaleSettings.setLocale(localeStr);
-
     _A.addListener(_onFocusChange);
     _B.addListener(_onFocusChange);
+    _C.addListener(_onFocusChange);
   }
 
   bool validateEmail() {
@@ -46,14 +46,21 @@ class _RegisterScreenState extends State<RegisterScreen> {
   void _onFocusChange() {
     setState(() {
       if (_A.hasFocus) {
-        _usernameColor = Palette().grey.withOpacity(0.7);
+        _emailColor = Palette().grey.withOpacity(0.7);
+        _usernameColor = Palette().grey;
         _pwdColor = Palette().grey;
       } else if (_B.hasFocus) {
-        _usernameColor = Palette().grey;
+        _usernameColor = Palette().grey.withOpacity(0.7);
+        _pwdColor = Palette().grey;
+        _emailColor = Palette().grey;
+      } else if(_C.hasFocus){
         _pwdColor = Palette().grey.withOpacity(0.7);
-      } else {
+        _usernameColor = Palette().grey;
+        _emailColor = Palette().grey;
+      }else{
         _usernameColor = Palette().grey;
         _pwdColor = Palette().grey;
+        _emailColor = Palette().grey;
       }
     });
   }
@@ -81,12 +88,29 @@ class _RegisterScreenState extends State<RegisterScreen> {
     );
   }
 
+  Future<void> register() async {
+    try {
+      UserCredential user = await FirebaseAuth.instance.createUserWithEmailAndPassword(
+          email: emailAddress,
+          password: password
+      );
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'weak-password') {
+        print('The password provided is too weak.');
+      } else if (e.code == 'email-already-in-use') {
+        print('The account already exists for that email.');
+      }
+    } catch (e) {
+      print(e.toString());
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     SizeConfig().init(context);
 
     return MaterialApp(
-      title: 'Login Screen',
+      title: t.registerScreen.title,
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
@@ -108,30 +132,45 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text(t.loginScreen.welcome),
+                  Text(t.registerScreen.register),
                   SizedBox(
                     height: SizeConfig.safeBlockVertical * 5,
                   ),
                   InputBox(
                     focusNode: _A,
-                    labelText: t.loginScreen.username,
+                    labelText: t.registerScreen.emailAddress,
                     id: 'email',
+                    validate: validateEmail,
+                    onChanged: onChangeEmail,
+                    bgColor: _emailColor,
+                    onEnabledbgColor: Palette().grey.withOpacity(0.9),
+                    prefixIcon: Icons.alternate_email,
+                  ),
+                  SizedBox(
+                    height: SizeConfig.safeBlockVertical * 2,
+                  ),
+                  InputBox(
+                    focusNode: _B,
+                    labelText: t.registerScreen.username,
+                    id: 'username',
                     validate: validateEmail,
                     onChanged: onChangeEmail,
                     bgColor: _usernameColor,
                     onEnabledbgColor: Palette().grey.withOpacity(0.9),
+                    prefixIcon: Icons.person,
                   ),
                   SizedBox(
-                    height: 10,
+                    height: SizeConfig.safeBlockVertical * 2,
                   ),
                   InputBox(
-                    focusNode: _B,
-                    labelText: t.loginScreen.password,
+                    focusNode: _C,
+                    labelText: t.registerScreen.password,
                     id: 'password',
                     validate: validateEmail,
                     onChanged: onChangeEmail,
                     bgColor: _pwdColor,
                     onEnabledbgColor: Palette().grey.withOpacity(0.9),
+                    prefixIcon: Icons.lock_open,
                   ),
                   SizedBox(
                     height: SizeConfig.safeBlockVertical * 5,
@@ -141,7 +180,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       Navigator.of(context).push(_createRoute());
                     },
                     child: Text(
-                      t.loginScreen.login,
+                      t.registerScreen.register,
                     ),
                   )
                 ],

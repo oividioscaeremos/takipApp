@@ -48,7 +48,26 @@ class StringsEn extends Strings {
 	static StringsEn _instance = StringsEn();
 	static StringsEn get instance => _instance;
 
+	@override StringsGlobalEn get global => StringsGlobalEn._instance;
+	@override StringsRegisterScreenEn get registerScreen => StringsRegisterScreenEn._instance;
 	@override StringsLoginScreenEn get loginScreen => StringsLoginScreenEn._instance;
+}
+
+class StringsGlobalEn extends StringsGlobal {
+	static StringsGlobalEn _instance = StringsGlobalEn();
+	static StringsGlobalEn get instance => _instance;
+
+}
+
+class StringsRegisterScreenEn extends StringsRegisterScreen {
+	static StringsRegisterScreenEn _instance = StringsRegisterScreenEn();
+	static StringsRegisterScreenEn get instance => _instance;
+
+	@override String get title => 'Register Screen';
+	@override String get register => 'Register';
+	@override String get username => 'Username';
+	@override String get emailAddress => 'E-Mail';
+	@override String get password => 'Password';
 }
 
 class StringsLoginScreenEn extends StringsLoginScreen {
@@ -66,7 +85,26 @@ class Strings {
 	static Strings _instance = Strings();
 	static Strings get instance => _instance;
 
+	StringsGlobal get global => StringsGlobal._instance;
+	StringsRegisterScreen get registerScreen => StringsRegisterScreen._instance;
 	StringsLoginScreen get loginScreen => StringsLoginScreen._instance;
+}
+
+class StringsGlobal {
+	static StringsGlobal _instance = StringsGlobal();
+	static StringsGlobal get instance => _instance;
+
+}
+
+class StringsRegisterScreen {
+	static StringsRegisterScreen _instance = StringsRegisterScreen();
+	static StringsRegisterScreen get instance => _instance;
+
+	String get title => 'Kayıt Ekranı';
+	String get register => 'Kayıt Ol';
+	String get username => 'Kullanıcı Adı';
+	String get emailAddress => 'E-Mail';
+	String get password => 'Şifre';
 }
 
 class StringsLoginScreen {
@@ -75,7 +113,7 @@ class StringsLoginScreen {
 
 	String get title => 'Giriş Ekranı';
 	String get welcome => 'DiziTakip\'e Hoşgeldin!';
-	String get username => 'Kullanıcı Adı:';
-	String get password => 'Şifre:';
+	String get username => 'Kullanıcı Adı';
+	String get password => 'Şifre';
 	String get login => 'Giriş Yap';
 }
