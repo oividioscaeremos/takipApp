@@ -1,4 +1,5 @@
 import 'package:dizi_takip/classes/Palette.dart';
+import 'package:dizi_takip/classes/UiOverlayStyle.dart';
 import 'package:dizi_takip/screens/RegisterScreen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -14,25 +15,12 @@ class _LoginScreenState extends State<LoginScreen> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    SystemChrome.setSystemUIOverlayStyle(
-      SystemUiOverlayStyle(
-        systemNavigationBarColor: Palette().grey,
-        systemNavigationBarIconBrightness: Brightness.light,
-        statusBarColor: Palette().grey,
-        statusBarIconBrightness: Brightness.light,
-      ),
-    );
+    UiOverlayStyle(Palette().grey, Brightness.dark);
   }
 
   Future<bool> _onBackPressed(BuildContext context){
-    SystemChrome.setSystemUIOverlayStyle(
-      SystemUiOverlayStyle(
-        systemNavigationBarColor: Palette().darkGrey,
-        systemNavigationBarIconBrightness: Brightness.light,
-        statusBarColor: Palette().darkGrey,
-        statusBarIconBrightness: Brightness.light,
-      ),
-    );
+    UiOverlayStyle(Palette().darkGrey, Brightness.light);
+
     return Navigator.popAndPushNamed(context, RegisterScreen.id);
   }
 

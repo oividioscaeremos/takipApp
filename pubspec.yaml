@@ -21,6 +21,8 @@ dependencies:
     sdk: flutter
   fast_i18n: ^1.6.0 # flutter packages pub run build_runner build --delete-conflicting-outputs
   firebase_auth: ^0.18.0+1
+  permission_handler: ^5.0.1+1
+  cloud_firestore: ^0.14.0+2
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.

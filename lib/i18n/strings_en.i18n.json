@@ -1,13 +1,20 @@
 {
   "global"       : {
-
+    "error" : "ERROR",
+    "warning" : "WARNING",
+    "ok" : "OK",
+    "close" : "CLOSE",
+    "yes" : "YES",
+    "NO" : "NO"
   },
   "registerScreen" : {
     "title"         : "Register Screen",
     "register"      : "Register",
     "username"      : "Username",
     "emailAddress"  : "E-Mail",
-    "password"      : "Password"
+    "password"      : "Password",
+    "weakPassword" : "The password provided is too weak.",
+    "emailInUse" : "The account already exists for that email."
   },
   "loginScreen" : {
     "title"       : "Login Screen",

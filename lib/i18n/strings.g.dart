@@ -57,6 +57,12 @@ class StringsGlobalEn extends StringsGlobal {
 	static StringsGlobalEn _instance = StringsGlobalEn();
 	static StringsGlobalEn get instance => _instance;
 
+	@override String get error => 'ERROR';
+	@override String get warning => 'WARNING';
+	@override String get ok => 'OK';
+	@override String get close => 'CLOSE';
+	@override String get yes => 'YES';
+	@override String get NO => 'NO';
 }
 
 class StringsRegisterScreenEn extends StringsRegisterScreen {
@@ -68,6 +74,8 @@ class StringsRegisterScreenEn extends StringsRegisterScreen {
 	@override String get username => 'Username';
 	@override String get emailAddress => 'E-Mail';
 	@override String get password => 'Password';
+	@override String get weakPassword => 'The password provided is too weak.';
+	@override String get emailInUse => 'The account already exists for that email.';
 }
 
 class StringsLoginScreenEn extends StringsLoginScreen {
@@ -94,6 +102,12 @@ class StringsGlobal {
 	static StringsGlobal _instance = StringsGlobal();
 	static StringsGlobal get instance => _instance;
 
+	String get error => 'HATA';
+	String get warning => 'UYARI';
+	String get ok => 'TAMAM';
+	String get close => 'VAZGEÇ';
+	String get yes => 'EVET';
+	String get NO => 'HAYIR';
 }
 
 class StringsRegisterScreen {
@@ -105,6 +119,8 @@ class StringsRegisterScreen {
 	String get username => 'Kullanıcı Adı';
 	String get emailAddress => 'E-Mail';
 	String get password => 'Şifre';
+	String get weakPassword => 'Şifreniz yeterince güçlü değil.';
+	String get emailInUse => 'Bu mail adresi kullanımdadır.';
 }
 
 class StringsLoginScreen {

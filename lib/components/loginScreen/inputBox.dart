@@ -1,7 +1,9 @@
 import 'package:dizi_takip/classes/Palette.dart';
 import 'package:dizi_takip/classes/SizeConfig.dart';
+import 'package:dizi_takip/classes/UiOverlayStyle.dart';
 import 'package:dizi_takip/i18n/strings.g.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
 class InputBox extends StatefulWidget {
@@ -33,43 +35,48 @@ class _InputBoxState extends State<InputBox> {
   Widget build(BuildContext context) {
     SizeConfig().init(context);
 
-    return Container(
-      width: 350,
-      height: 60,
-      decoration: BoxDecoration(
-        color: widget.bgColor,
-      ),
-      child: TextFormField(
-        focusNode: widget.focusNode,
-        style: TextStyle(
-          letterSpacing: 2,
-          color: Palette().white,
+    return GestureDetector(
+      onTap: (){
+        UiOverlayStyle(Palette().darkGrey, Brightness.light);
+      },
+      child: Container(
+        width: 350,
+        height: 60,
+        decoration: BoxDecoration(
+          color: widget.bgColor,
         ),
-        decoration: InputDecoration(
-          prefixIcon: Icon(
-            widget.prefixIcon,
-            color: Palette().red,
-          ),
-          labelText: widget.labelText,
-          labelStyle: TextStyle(
+        child: TextFormField(
+          focusNode: widget.focusNode,
+          style: TextStyle(
+            letterSpacing: 2,
             color: Palette().white,
-            fontSize: 12,
-            fontWeight: FontWeight.bold,
-          ), // widget.labelText,
-          focusColor: widget.onEnabledbgColor,
-          border: InputBorder.none,
-          contentPadding: EdgeInsets.symmetric(
-            vertical: 10,
-            horizontal: 10,
           ),
-          prefixStyle: TextStyle(
-            color: Palette().white.withOpacity(0.8),
+          decoration: InputDecoration(
+            prefixIcon: Icon(
+              widget.prefixIcon,
+              color: Palette().red,
+            ),
+            labelText: widget.labelText,
+            labelStyle: TextStyle(
+              color: Palette().white,
+              fontSize: 12,
+              fontWeight: FontWeight.bold,
+            ), // widget.labelText,
+            focusColor: widget.onEnabledbgColor,
+            border: InputBorder.none,
+            contentPadding: EdgeInsets.symmetric(
+              vertical: 10,
+              horizontal: 10,
+            ),
+            prefixStyle: TextStyle(
+              color: Palette().white.withOpacity(0.8),
+            ),
           ),
+          validator: (str) {
+            return widget.validate(str);
+          },
+          onChanged: widget.onChanged,
         ),
-        validator: (str) {
-          return widget.validate(str);
-        },
-        onChanged: widget.onChanged,
       ),
     );
   }

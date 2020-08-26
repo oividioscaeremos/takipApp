@@ -1,13 +1,20 @@
 {
   "global"       : {
-
+    "error" : "HATA",
+    "warning" : "UYARI",
+    "ok" : "TAMAM",
+    "close" : "VAZGEÇ",
+    "yes" : "EVET",
+    "NO" : "HAYIR"
   },
   "registerScreen" : {
     "title"         : "Kayıt Ekranı",
     "register"      : "Kayıt Ol",
     "username"      : "Kullanıcı Adı",
     "emailAddress"  : "E-Mail",
-    "password"      : "Şifre"
+    "password"      : "Şifre",
+    "weakPassword" : "Şifreniz yeterince güçlü değil.",
+    "emailInUse" : "Bu mail adresi kullanımdadır."
   },
   "loginScreen" : {
     "title"      : "Giriş Ekranı",

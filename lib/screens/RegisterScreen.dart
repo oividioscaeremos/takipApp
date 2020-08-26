@@ -1,3 +1,6 @@
+import 'dart:convert';
+
+import 'package:dizi_takip/classes/DatabaseClasses/ExtendedEpisode.dart';
 import 'package:dizi_takip/classes/Palette.dart';
 import 'package:dizi_takip/classes/SizeConfig.dart';
 import 'package:dizi_takip/components/loginScreen/inputBox.dart';
@@ -5,6 +8,9 @@ import 'package:dizi_takip/i18n/strings.g.dart';
 import 'package:dizi_takip/screens/LoginScreen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:http/http.dart' as http;
+
 
 class RegisterScreen extends StatefulWidget {
   static String id = 'register_screen';
@@ -14,6 +20,7 @@ class RegisterScreen extends StatefulWidget {
 }
 
 class _RegisterScreenState extends State<RegisterScreen> {
+  String username;
   String emailAddress;
   String password;
   Color _emailColor = Palette().grey;
@@ -38,9 +45,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
     return regExp.hasMatch(emailAddress);
   }
 
+  void onChangeUsername(String _str) {
+    username = _str.toLowerCase();
+  }
+
   void onChangeEmail(String _str) {
     print(_str);
-    emailAddress = _str;
+    emailAddress = _str.toLowerCase();
   }
 
   void _onFocusChange() {
@@ -71,13 +82,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
       transitionsBuilder: (context, animation, secondaryAnimation, child) {
         var begin = Offset(0.0, 1.0);
         var end = Offset.zero;
-        var curve = Curves.decelerate;
+        var curve = Curves.fastLinearToSlowEaseIn;
 
         var tween = Tween(begin: begin, end: end);
         var offsetAnimation = animation.drive(tween);
         var curvedAnimation = CurvedAnimation(
           parent: animation,
-          curve: curve,
+          curve: curve
         );
 
         return SlideTransition(
@@ -88,7 +99,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     );
   }
 
-  Future<void> register() async {
+  Future<void> register(BuildContext context) async {
     try {
       UserCredential user = await FirebaseAuth.instance.createUserWithEmailAndPassword(
           email: emailAddress,
@@ -96,18 +107,107 @@ class _RegisterScreenState extends State<RegisterScreen> {
       );
     } on FirebaseAuthException catch (e) {
       if (e.code == 'weak-password') {
-        print('The password provided is too weak.');
+        return showDialog(
+          context: context,
+          builder: (_) => AlertDialog(
+            title: Text(
+              t.global.error,
+            ),
+            content: Text(
+                t.registerScreen.weakPassword
+            ),
+            actions: [
+              RaisedButton(
+                child: Text(
+                    t.global.ok
+                ),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              )
+            ],
+          ),
+        );
       } else if (e.code == 'email-already-in-use') {
-        print('The account already exists for that email.');
+        return showDialog(
+          context: context,
+          builder: (_) => AlertDialog(
+            title: Text(
+              t.global.error,
+            ),
+            content: Text(
+                t.registerScreen.emailInUse
+            ),
+            actions: [
+              RaisedButton(
+                child: Text(
+                    t.global.ok
+                ),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              )
+            ],
+          ),
+        );
       }
     } catch (e) {
-      print(e.toString());
+      return showDialog(
+        context: context,
+        builder: (_) => AlertDialog(
+          title: Text(
+            t.global.error,
+          ),
+          content: Text(
+              t.registerScreen.weakPassword
+          ),
+          actions: [
+            RaisedButton(
+              child: Text(
+                  e.toString()
+              ),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            )
+          ],
+        ),
+      );
     }
+
   }
 
   @override
   Widget build(BuildContext context) {
     SizeConfig().init(context);
+    ExtendedEpisode ep = new ExtendedEpisode();
+
+    Future<ExtendedEpisode> _getFromAPI() async {
+      String apiString = "https://api.trakt.tv/shows/1390/seasons/1/episodes/1?extended=full";
+
+      final resp = await http.get(apiString,
+          headers: {
+            "trakt-api-key":"",
+            "content-type":"application/json",
+            "trakt-api-version":"2"
+          }
+      );
+      ep = ExtendedEpisode.fromJson(jsonDecode(resp.body));
+      print(ep.toJson());
+      return ep;
+
+
+    }
+
+    return FutureBuilder(
+      future: _getFromAPI(),
+      builder: (BuildContext context, AsyncSnapshot<ExtendedEpisode> snapshot){
+        if(snapshot.hasData){
+          return Text(snapshot.data.toString());
+        }
+        return CircularProgressIndicator();
+      }
+    );
 
     return MaterialApp(
       title: t.registerScreen.title,
@@ -123,6 +223,22 @@ class _RegisterScreenState extends State<RegisterScreen> {
             if (!currentFocus.hasPrimaryFocus) {
               currentFocus.unfocus();
             }
+            print("just here");
+
+            String apiString = "https://api.trakt.tv/shows/1390/seasons/1/episodes/1?extended=full";
+            http.get(apiString,
+              headers: {
+                "trakt-api-key":"dc0c8f69daaf58412cc4cd72801837609ab166ad03b973ba132ea310741b08cc",
+                "content-type":"application/json",
+                "trakt-api-version":"2"
+              }
+            ).whenComplete(() => (resp){
+              print("also here");
+              ExtendedEpisode ep = ExtendedEpisode.fromJson(resp.body);
+              print(ep.toJson());
+            });
+
+            print("after");
           },
           child: Container(
             width: MediaQuery.of(context).size.width,
@@ -180,7 +296,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       Navigator.of(context).push(_createRoute());
                     },
                     child: Text(
-                      t.registerScreen.register,
+                      t.registerScreen.register.toUpperCase(),
                     ),
                   )
                 ],
