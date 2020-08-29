@@ -1,6 +1,9 @@
 import 'dart:convert';
+import 'dart:developer';
+
 import 'package:dizi_takip/classes/ApiHandlers/InitNewShow.dart';
 import 'package:dizi_takip/classes/ApiHandlers/QueryBuilder.dart';
+import 'package:dizi_takip/classes/DatabaseClasses/Show.dart';
 import 'package:dizi_takip/classes/Palette.dart';
 import 'package:dizi_takip/classes/SizeConfig.dart';
 import 'package:dizi_takip/components/loginScreen/inputBox.dart';
@@ -9,7 +12,6 @@ import 'package:dizi_takip/screens/LoginScreen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:http/http.dart' as http;
 
 
@@ -193,16 +195,17 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
     print(qb.api_call.toString());
     return FutureBuilder(
-      future: InitNewShow(showTraktID: "1390").addAllEpisodes(),
-      builder: (BuildContext context, AsyncSnapshot<bool> snapshot){
+      future: InitNewShow(showTraktID: "1407").initShow(),
+      builder: (BuildContext context, AsyncSnapshot<Show> snapshot){
         if(snapshot.hasData){
           /*ShowService show = ShowService.fromJson(jsonDecode(snapshot.data));
           print(show.title.toString());
           CollectionReference shows = FirebaseFirestore.instance.collection('shows');
           shows.doc(show.ids.imdb.toString()).set(show.toJson());*/
           //shows.add(show.toJson());
+          List<int> bytes = jsonEncode(snapshot.data).toString().codeUnits;
 
-          return Text("snapshot.data.toString()");
+          return SafeArea(child: Text(bytes.length.toString()));
         }
         return CircularProgressIndicator();
       }

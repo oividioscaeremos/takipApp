@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dizi_takip/classes/ApiHandlers/QueryBuilder.dart';
@@ -18,42 +19,43 @@ class InitNewShow{
   List<Season> newSeasons = new List<Season>();
   List<Episode> newEpisodes = new List<Episode>();
 
-  Future<bool> addAllEpisodes() async {
+  Future<Show> initShow() async {
     Firebase.initializeApp();
+    DocumentSnapshot ds = await firestore.collection('shows').doc(this.showTraktID).get();
 
-    if(firestore.collection('shows').doc(this.showTraktID) != null){
-      return false;
+    if (ds.data() != null) {
+        return Show.fromJson(ds.data());
     }
 
-    QueryBuilder queryBuilder = QueryBuilder(show: this.showTraktID, isExtended: true);
+    QueryBuilder queryBuilder = QueryBuilder(
+        show: this.showTraktID,
+        isExtended: true
+    );
+
     final String showResponse = await queryBuilder.getResponse();
+
     newShow = Show.fromJson(jsonDecode(showResponse));
-    queryBuilder = QueryBuilder(show: this.showTraktID, season: "", isExtended: true);
+    queryBuilder =
+        QueryBuilder(show: this.showTraktID, season: "", isExtended: true);
+
     final String seasonsResponse = await queryBuilder.getResponse();
     var season = jsonDecode(seasonsResponse) as List;
     newSeasons = season.map((s) => Season.fromJson(s)).toList();
-
-
-    for(int i = 0; i < newSeasons.length - 1; i++){
-      print(i.toString());
-      queryBuilder = QueryBuilder(show: this.showTraktID, season: (i+1).toString(), episode: "", isExtended: true);
+    for (int i = 0; i < newSeasons.length - 1; i++) {
+      queryBuilder = QueryBuilder(show: this.showTraktID,
+          season: (i + 1).toString(),
+          episode: "",
+          isExtended: true);
       final String episodesOfASeason = await queryBuilder.getResponse();
-      print("repo");
       var episodesOfTheSeason = jsonDecode(episodesOfASeason) as List;
-      newEpisodes = episodesOfTheSeason.map((e) => Episode.fromJson(e)).toList();
-      newEpisodes.forEach((episode) {
-        firestore.collection('episodes').doc(episode.ids.trakt.toString()).set(episode.toJson());
-        DocumentReference episodeRef = FirebaseFirestore.instance.collection('episodes').doc(episode.ids.trakt.toString());
-        newSeasons[i].episodes.insert(newSeasons[i].episodes.length, episodeRef);
-      });
+      newEpisodes =
+          episodesOfTheSeason.map((e) => Episode.fromJson(e)).toList();
+      newSeasons[i].episodes = newEpisodes;
     }
-
-    newSeasons.forEach((s) {
-      firestore.collection('seasons').doc(s.ids.trakt.toString()).set(s.toJson());
-      DocumentReference seasonRef = FirebaseFirestore.instance.collection('seasons').doc(s.ids.trakt.toString());
-      newShow.seasons.add(seasonRef);
-    });
-    firestore.collection('shows').doc(newShow.ids.trakt.toString()).set(newShow.toJson());
-    return true;
+    print('here');
+    newShow.seasons = newSeasons;
+    firestore.collection('shows').doc(newShow.ids.trakt.toString()).set(
+        newShow.toJson());
+    return newShow;
   }
 }

@@ -1,5 +1,4 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:dizi_takip/classes/DatabaseClasses/Ids.dart';
+import 'Ids.dart';
 
 class Episode {
   int season;
@@ -49,7 +48,6 @@ class Episode {
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = new Map<String, dynamic>();
-
     data['season'] = this.season;
     data['number'] = this.number;
     data['title'] = this.title;

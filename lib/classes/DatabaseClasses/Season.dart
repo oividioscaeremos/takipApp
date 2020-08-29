@@ -1,4 +1,7 @@
+import 'dart:developer';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:dizi_takip/classes/DatabaseClasses/Episode.dart';
 import 'package:dizi_takip/classes/DatabaseClasses/Ids.dart';
 
 class Season {
@@ -12,7 +15,7 @@ class Season {
   String overview;
   String firstAired;
   String network;
-  List<DocumentReference> episodes = new List<DocumentReference>();
+  List<Episode> episodes;
 
   Season(
       {this.number,
@@ -24,7 +27,8 @@ class Season {
         this.title,
         this.overview,
         this.firstAired,
-        this.network});
+        this.network,
+        this.episodes});
 
   Season.fromJson(Map<String, dynamic> json) {
     number = json['number'];
@@ -37,6 +41,12 @@ class Season {
     overview = json['overview'];
     firstAired = json['first_aired'];
     network = json['network'];
+    if (json['episodes'] != null) {
+      episodes = new List<Episode>();
+      json['episodes'].forEach((v) {
+        episodes.add(new Episode.fromJson(v));
+      });
+    }
   }
 
   Map<String, dynamic> toJson() {
@@ -53,8 +63,9 @@ class Season {
     data['overview'] = this.overview;
     data['first_aired'] = this.firstAired;
     data['network'] = this.network;
-    data['episodes'] = this.episodes;
-
+    if (this.episodes != null) {
+      data['episodes'] = this.episodes.map((v) => v.toJson()).toList();
+    }
     return data;
   }
 }
