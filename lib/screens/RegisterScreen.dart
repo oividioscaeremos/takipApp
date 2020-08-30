@@ -1,14 +1,17 @@
 import 'dart:convert';
 import 'dart:developer';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dizi_takip/classes/ApiHandlers/InitNewShow.dart';
 import 'package:dizi_takip/classes/ApiHandlers/QueryBuilder.dart';
 import 'package:dizi_takip/classes/DatabaseClasses/Show.dart';
 import 'package:dizi_takip/classes/Palette.dart';
 import 'package:dizi_takip/classes/SizeConfig.dart';
 import 'package:dizi_takip/components/loginScreen/inputBox.dart';
+import 'package:dizi_takip/components/loginScreen/customButton.dart';
 import 'package:dizi_takip/i18n/strings.g.dart';
 import 'package:dizi_takip/screens/LoginScreen.dart';
+import 'package:email_validator/email_validator.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -29,10 +32,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
   Color _emailColor = Palette().grey;
   Color _usernameColor = Palette().grey;
   Color _pwdColor = Palette().grey;
+  bool _showErrorForEmail = false;
+  bool _showErrorForUsername = false;
+  bool _showErrorForPassword = false;
 
   FocusNode _A = new FocusNode();
   FocusNode _B = new FocusNode();
   FocusNode _C = new FocusNode();
+
+  static final _formKey = GlobalKey<FormState>();
 
   @override
   void initState() {
@@ -47,9 +55,29 @@ class _RegisterScreenState extends State<RegisterScreen> {
     });
   }
 
-  bool validateEmail() {
+  String validateEmail(String str) {
     RegExp regExp = new RegExp(r"^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,253}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,253}[a-zA-Z0-9])?)*$");
-    return regExp.hasMatch(emailAddress);
+    if (str.isEmpty) {
+      _showErrorForEmail = true;
+      return t.registerScreen.emailIsEmpty;
+    }
+    log(EmailValidator.validate(str.toLowerCase()).toString());
+    if (!EmailValidator.validate(str.toLowerCase())) {
+      _showErrorForEmail = true;
+      return t.registerScreen.emailNotValid;
+    }else {
+      log("im right here");
+      _showErrorForEmail = false;
+      return null;
+    }
+  }
+
+  String validateUsername(str){
+    return null;
+  }
+
+  String validatePassword(str){
+    return null;
   }
 
   void onChangeUsername(String _str) {
@@ -57,7 +85,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
   }
 
   void onChangeEmail(String _str) {
-    print(_str);
     emailAddress = _str.toLowerCase();
   }
 
@@ -106,80 +133,144 @@ class _RegisterScreenState extends State<RegisterScreen> {
     );
   }
 
-  Future<void> register(BuildContext context) async {
-    try {
-      UserCredential user = await FirebaseAuth.instance.createUserWithEmailAndPassword(
-          email: emailAddress,
-          password: password
-      );
-    } on FirebaseAuthException catch (e) {
-      if (e.code == 'weak-password') {
+  void register(BuildContext context) async {
+    final form = _formKey.currentState;
+
+    if(form.validate()){
+      try {
+        FirebaseFirestore firestore = FirebaseFirestore.instance;
+        firestore.collection('users').where('username', isEqualTo: emailAddress).get().then((usr) async {
+          if(usr.docs.isEmpty){
+            return showDialog(
+              context: context,
+              builder: (_) =>
+                  AlertDialog(
+                    title: Text(
+                      t.global.error,
+                    ),
+                    content: Text(
+                        t.registerScreen.weakPassword
+                    ),
+                    actions: [
+                      RaisedButton(
+                        child: Text(
+                            t.global.ok
+                        ),
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                      )
+                    ],
+                  ),
+            );
+          }else {
+            UserCredential user = await FirebaseAuth.instance.createUserWithEmailAndPassword(
+              email: emailAddress,
+              password: password,
+            );
+
+            firestore.collection('users').add({
+              "username" : username,
+              "email" : emailAddress,
+              "totalWatchTimeInMinutes" : 0,
+              "favoriteGenres" : [],
+              "myShows" : [],
+            });
+          }
+        });
+      } on FirebaseAuthException catch (e) {
+        if (e.code == 'weak-password') {
+          return showDialog(
+            context: context,
+            builder: (_) => AlertDialog(
+              title: Text(
+                t.global.error,
+              ),
+              content: Text(
+                  t.registerScreen.weakPassword
+              ),
+              actions: [
+                RaisedButton(
+                  child: Text(
+                      t.global.ok
+                  ),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                )
+              ],
+            ),
+          );
+        } else if (e.code == 'email-already-in-use') {
+          return showDialog(
+            context: context,
+            builder: (_) => AlertDialog(
+              title: Text(
+                t.global.error,
+              ),
+              content: Text(
+                  t.registerScreen.emailInUse
+              ),
+              actions: [
+                RaisedButton(
+                  child: Text(
+                      t.global.ok
+                  ),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                )
+              ],
+            ),
+          );
+        }else if (e.code == 'username-in-use') {
+          log("bith we here");
+          return showDialog(
+            context: context,
+            builder: (_) => AlertDialog(
+              title: Text(
+                t.global.error,
+              ),
+              content: Text(
+                  t.registerScreen.usernameInUse
+              ),
+              actions: [
+                RaisedButton(
+                  child: Text(
+                      t.global.ok
+                  ),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                )
+              ],
+            ),
+          );
+        }
+      } catch (e) {
         return showDialog(
           context: context,
-          builder: (_) => AlertDialog(
-            title: Text(
-              t.global.error,
-            ),
-            content: Text(
-                t.registerScreen.weakPassword
-            ),
-            actions: [
-              RaisedButton(
-                child: Text(
-                    t.global.ok
+          builder: (_) =>
+              AlertDialog(
+                title: Text(
+                  t.global.error,
                 ),
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-              )
-            ],
-          ),
-        );
-      } else if (e.code == 'email-already-in-use') {
-        return showDialog(
-          context: context,
-          builder: (_) => AlertDialog(
-            title: Text(
-              t.global.error,
-            ),
-            content: Text(
-                t.registerScreen.emailInUse
-            ),
-            actions: [
-              RaisedButton(
-                child: Text(
-                    t.global.ok
+                content: Text(
+                    t.registerScreen.weakPassword
                 ),
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-              )
-            ],
-          ),
+                actions: [
+                  RaisedButton(
+                    child: Text(
+                        e.toString()
+                    ),
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                  )
+                ],
+              ),
         );
       }
-    } catch (e) {
-      return showDialog(
-        context: context,
-        builder: (_) => AlertDialog(
-          title: Text(
-            t.global.error,
-          ),
-          content: Text(
-              t.registerScreen.weakPassword
-          ),
-          actions: [
-            RaisedButton(
-              child: Text(
-                  e.toString()
-              ),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            )
-          ],
-        ),
-      );
     }
 
   }
@@ -188,13 +279,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
   Widget build(BuildContext context) {
     SizeConfig().init(context);
 
-    QueryBuilder qb = QueryBuilder(
-        show: "1390",
-        isExtended: true
-    );
 
-    print(qb.api_call.toString());
-    return FutureBuilder(
+    /*return FutureBuilder(
       future: InitNewShow(showTraktID: "1407").initShow(),
       builder: (BuildContext context, AsyncSnapshot<Show> snapshot){
         if(snapshot.hasData){
@@ -209,7 +295,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         }
         return CircularProgressIndicator();
       }
-    );
+    );*/
 
     return MaterialApp(
       title: t.registerScreen.title,
@@ -220,88 +306,83 @@ class _RegisterScreenState extends State<RegisterScreen> {
         resizeToAvoidBottomInset: false,
         backgroundColor: Palette().darkGrey,
         body: GestureDetector(
-          onTap: () {
+          onTap: (){
             FocusScopeNode currentFocus = FocusScope.of(context);
             if (!currentFocus.hasPrimaryFocus) {
               currentFocus.unfocus();
             }
-            print("just here");
-
-            String apiString = "https://api.trakt.tv/shows/1390/seasons/1/episodes/1?extended=full";
-            http.get(apiString,
-              headers: {
-                "trakt-api-key":"dc0c8f69daaf58412cc4cd72801837609ab166ad03b973ba132ea310741b08cc",
-                "content-type":"application/json",
-                "trakt-api-version":"2"
-              }
-            ).whenComplete(() => (resp){
-              print("also here");
-              /*ExtendedEpisode ep = ExtendedEpisode.fromJson(resp.body);
-              print(ep.toJson());*/
-            });
-
-            print("after");
           },
-          child: Container(
-            width: MediaQuery.of(context).size.width,
-            color: Palette().darkGrey,
-            child: SafeArea(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(t.registerScreen.register),
-                  SizedBox(
-                    height: SizeConfig.safeBlockVertical * 5,
-                  ),
-                  InputBox(
-                    focusNode: _A,
-                    labelText: t.registerScreen.emailAddress,
-                    id: 'email',
-                    validate: validateEmail,
-                    onChanged: onChangeEmail,
-                    bgColor: _emailColor,
-                    onEnabledbgColor: Palette().grey.withOpacity(0.9),
-                    prefixIcon: Icons.alternate_email,
-                  ),
-                  SizedBox(
-                    height: SizeConfig.safeBlockVertical * 2,
-                  ),
-                  InputBox(
-                    focusNode: _B,
-                    labelText: t.registerScreen.username,
-                    id: 'username',
-                    validate: validateEmail,
-                    onChanged: onChangeEmail,
-                    bgColor: _usernameColor,
-                    onEnabledbgColor: Palette().grey.withOpacity(0.9),
-                    prefixIcon: Icons.person,
-                  ),
-                  SizedBox(
-                    height: SizeConfig.safeBlockVertical * 2,
-                  ),
-                  InputBox(
-                    focusNode: _C,
-                    labelText: t.registerScreen.password,
-                    id: 'password',
-                    validate: validateEmail,
-                    onChanged: onChangeEmail,
-                    bgColor: _pwdColor,
-                    onEnabledbgColor: Palette().grey.withOpacity(0.9),
-                    prefixIcon: Icons.lock_open,
-                  ),
-                  SizedBox(
-                    height: SizeConfig.safeBlockVertical * 5,
-                  ),
-                  GestureDetector(
-                    onTap: () {
-                      Navigator.of(context).push(_createRoute());
-                    },
-                    child: Text(
-                      t.registerScreen.register.toUpperCase(),
+          child: Form(
+            key: _formKey,
+            child: Container(
+              width: MediaQuery.of(context).size.width,
+              color: Palette().darkGrey,
+              child: SafeArea(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(t.registerScreen.register),
+                    SizedBox(
+                      height: SizeConfig.safeBlockVertical * 5,
                     ),
-                  )
-                ],
+                    InputBox(
+                      focusNode: _A,
+                      labelText: t.registerScreen.emailAddress,
+                      id: 'email',
+                      validate: validateEmail,
+                      onChanged: onChangeEmail,
+                      bgColor: _emailColor,
+                      onEnabledbgColor: Palette().grey.withOpacity(0.9),
+                      prefixIcon: Icons.alternate_email,
+                      showError: _showErrorForEmail,
+                    ),
+                    SizedBox(
+                      height: SizeConfig.safeBlockVertical * 2,
+                    ),
+                    InputBox(
+                      focusNode: _B,
+                      labelText: t.registerScreen.username,
+                      id: 'username',
+                      validate: validateUsername,
+                      onChanged: onChangeEmail,
+                      bgColor: _usernameColor,
+                      onEnabledbgColor: Palette().grey.withOpacity(0.9),
+                      prefixIcon: Icons.person,
+                      showError: _showErrorForUsername,
+                    ),
+                    SizedBox(
+                      height: SizeConfig.safeBlockVertical * 2,
+                    ),
+                    InputBox(
+                      focusNode: _C,
+                      labelText: t.registerScreen.password,
+                      id: 'password',
+                      validate: validatePassword,
+                      onChanged: onChangeEmail,
+                      bgColor: _pwdColor,
+                      onEnabledbgColor: Palette().grey.withOpacity(0.9),
+                      prefixIcon: Icons.lock_open,
+                      showError: _showErrorForPassword,
+                      isObscure: true,
+                    ),
+                    SizedBox(
+                      height: SizeConfig.safeBlockVertical * 3,
+                    ),
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.of(context).push(_createRoute());
+                      },
+                      child: CustomButton(
+                        text: t.registerScreen.register,
+                        buttonColor: Palette().white,
+                        onPressed: () {
+                          register(context);
+                        },
+                      ),
+                    )
+                  ],
+                ),
               ),
             ),
           ),

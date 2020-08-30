@@ -14,7 +14,14 @@
     "emailAddress"  : "E-Mail",
     "password"      : "Şifre",
     "weakPassword" : "Şifreniz yeterince güçlü değil.",
-    "emailInUse" : "Bu mail adresi kullanımdadır."
+    "emailInUse" : "Bu mail adresi kullanımdadır.",
+    "usernameInUse" :"Bu kullanıcı adı kullanımdadır, lütfen farklı bir kullanıcı adı seçiniz.",
+    "emailIsEmpty"    : "Email adresi boş bırakılamaz.",
+    "passwordIsEmpty" : "Şifre boş bırakılamaz.",
+    "usernameIsEmpty" : "Kullanıcı adı boş bırakılamaz.",
+    "emailNotValid"   : "Geçersiz email formatı.",
+    "usernameNotValid": "Geçersiz kullanıcı adı formatı.",
+    "passwordNotValid": "Geçersiz şifre formatı."
   },
   "loginScreen" : {
     "title"      : "Giriş Ekranı",

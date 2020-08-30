@@ -76,6 +76,7 @@ class StringsRegisterScreenEn extends StringsRegisterScreen {
 	@override String get password => 'Password';
 	@override String get weakPassword => 'The password provided is too weak.';
 	@override String get emailInUse => 'The account already exists for that email.';
+	@override String get usernameInUse => 'This username is taken, please pick another one.';
 }
 
 class StringsLoginScreenEn extends StringsLoginScreen {
@@ -121,6 +122,13 @@ class StringsRegisterScreen {
 	String get password => 'Şifre';
 	String get weakPassword => 'Şifreniz yeterince güçlü değil.';
 	String get emailInUse => 'Bu mail adresi kullanımdadır.';
+	String get usernameInUse => 'Bu kullanıcı adı kullanımdadır, lütfen farklı bir kullanıcı adı seçiniz.';
+	String get emailIsEmpty => 'Email adresi boş bırakılamaz.';
+	String get passwordIsEmpty => 'Şifre boş bırakılamaz.';
+	String get usernameIsEmpty => 'Kullanıcı adı boş bırakılamaz.';
+	String get emailNotValid => 'Geçersiz email formatı.';
+	String get usernameNotValid => 'Geçersiz kullanıcı adı formatı.';
+	String get passwordNotValid => 'Geçersiz şifre formatı.';
 }
 
 class StringsLoginScreen {

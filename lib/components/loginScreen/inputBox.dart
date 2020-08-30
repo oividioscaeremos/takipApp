@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:dizi_takip/classes/Palette.dart';
 import 'package:dizi_takip/classes/SizeConfig.dart';
 import 'package:dizi_takip/classes/UiOverlayStyle.dart';
@@ -13,6 +15,8 @@ class InputBox extends StatefulWidget {
   final Function onChanged;
   final FocusNode focusNode;
   final IconData prefixIcon;
+  final bool isObscure;
+  bool showError;
   Color bgColor;
   Color onEnabledbgColor;
 
@@ -24,7 +28,9 @@ class InputBox extends StatefulWidget {
       this.bgColor,
       this.onEnabledbgColor,
       this.focusNode,
-      this.prefixIcon});
+      this.prefixIcon,
+      this.isObscure,
+      this.showError});
 
   @override
   _InputBoxState createState() => _InputBoxState();
@@ -41,11 +47,12 @@ class _InputBoxState extends State<InputBox> {
       },
       child: Container(
         width: 350,
-        height: 60,
+        height: widget.showError ? 70 : 60,
         decoration: BoxDecoration(
           color: widget.bgColor,
         ),
         child: TextFormField(
+          keyboardType: TextInputType.emailAddress,
           focusNode: widget.focusNode,
           style: TextStyle(
             letterSpacing: 2,
@@ -54,7 +61,7 @@ class _InputBoxState extends State<InputBox> {
           decoration: InputDecoration(
             prefixIcon: Icon(
               widget.prefixIcon,
-              color: Palette().red,
+              color: Palette().white.withAlpha(100),
             ),
             labelText: widget.labelText,
             labelStyle: TextStyle(
@@ -76,6 +83,7 @@ class _InputBoxState extends State<InputBox> {
             return widget.validate(str);
           },
           onChanged: widget.onChanged,
+          obscureText: widget.isObscure == null ? false : true,
         ),
       ),
     );

@@ -8,13 +8,20 @@
     "NO" : "NO"
   },
   "registerScreen" : {
-    "title"         : "Register Screen",
-    "register"      : "Register",
-    "username"      : "Username",
-    "emailAddress"  : "E-Mail",
-    "password"      : "Password",
-    "weakPassword" : "The password provided is too weak.",
-    "emailInUse" : "The account already exists for that email."
+    "title"           : "Register Screen",
+    "register"        : "Register",
+    "username"        : "Username",
+    "emailAddress"    : "E-Mail",
+    "password"        : "Password",
+    "weakPassword"    : "The password provided is too weak.",
+    "emailInUse"      : "The account already exists for that email.",
+    "usernameInUse"   : "This username is taken, please pick another one.",
+    "emailIsEmpty"    : "Email address cannot be empty.",
+    "passwordIsEmpty" : "Password cannot be empty.",
+    "usernameIsEmpty" : "Username cannot be empty.",
+    "emailNotValid"   : "Email is not in a valid format.",
+    "usernameNotValid": "Username is not in a valid format.",
+    "passwordNotValid": "Password is not in a valid format."
   },
   "loginScreen" : {
     "title"       : "Login Screen",
