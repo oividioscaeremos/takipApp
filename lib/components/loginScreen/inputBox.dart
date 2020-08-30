@@ -16,6 +16,8 @@ class InputBox extends StatefulWidget {
   final FocusNode focusNode;
   final IconData prefixIcon;
   final bool isObscure;
+  final TextInputType inputType;
+
   bool showError;
   Color bgColor;
   Color onEnabledbgColor;
@@ -30,7 +32,8 @@ class InputBox extends StatefulWidget {
       this.focusNode,
       this.prefixIcon,
       this.isObscure,
-      this.showError});
+      this.showError,
+      this.inputType});
 
   @override
   _InputBoxState createState() => _InputBoxState();
@@ -42,17 +45,18 @@ class _InputBoxState extends State<InputBox> {
     SizeConfig().init(context);
 
     return GestureDetector(
-      onTap: (){
+      onTap: () {
         UiOverlayStyle(Palette().darkGrey, Brightness.light);
       },
       child: Container(
         width: 350,
-        height: widget.showError ? 70 : 60,
+        height: widget.showError ? 75 : 60,
         decoration: BoxDecoration(
           color: widget.bgColor,
         ),
         child: TextFormField(
-          keyboardType: TextInputType.emailAddress,
+          keyboardType:
+              widget.inputType == null ? TextInputType.text : widget.inputType,
           focusNode: widget.focusNode,
           style: TextStyle(
             letterSpacing: 2,

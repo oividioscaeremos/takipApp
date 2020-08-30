@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:dizi_takip/classes/Palette.dart';
 import 'package:dizi_takip/classes/SizeConfig.dart';
 import 'package:dizi_takip/classes/UiOverlayStyle.dart';
@@ -8,7 +10,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:permission_handler/permission_handler.dart';
-
 
 void main() => runApp(
       MaterialApp(
@@ -26,26 +27,20 @@ class _DiziTakipAppState extends State<DiziTakipApp> {
   void initState() {
     super.initState();
 
-    UiOverlayStyle(Palette().darkGrey, Brightness.light);
+    UiOverlayStyle(Palette().grey, Brightness.dark);
 
-    LocaleSettings.useDeviceLocale().whenComplete((){
-      if(LocaleSettings.currentLocale.contains("tr")){
-        LocaleSettings.setLocale("tr");
-      }else {
-        LocaleSettings.setLocale("en");
-      }
-    });
-
+    LocaleSettings.setLocale(
+        LocaleSettings.currentLocale == "tr" ? "tr" : "en");
   }
 
   @override
   Widget build(BuildContext context) {
     SizeConfig().init(context);
     return MaterialApp(
-      initialRoute: RegisterScreen.id,
+      initialRoute: LoginScreen.id,
       routes: {
-      RegisterScreen.id: (context) => RegisterScreen(),
-      LoginScreen.id: (context) => LoginScreen()
+        RegisterScreen.id: (context) => RegisterScreen(),
+        LoginScreen.id: (context) => LoginScreen()
       },
     );
   }

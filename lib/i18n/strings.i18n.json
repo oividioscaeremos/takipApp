@@ -1,33 +1,37 @@
 {
-  "global"       : {
-    "error" : "HATA",
-    "warning" : "UYARI",
-    "ok" : "TAMAM",
-    "close" : "VAZGEÇ",
-    "yes" : "EVET",
-    "NO" : "HAYIR"
+  "global": {
+    "error": "HATA",
+    "warning": "UYARI",
+    "ok": "TAMAM",
+    "close": "VAZGEÇ",
+    "yes": "EVET",
+    "NO": "HAYIR",
+    "and": "ve",
+    "or": "veya"
   },
-  "registerScreen" : {
-    "title"         : "Kayıt Ekranı",
-    "register"      : "Kayıt Ol",
-    "username"      : "Kullanıcı Adı",
-    "emailAddress"  : "E-Mail",
-    "password"      : "Şifre",
-    "weakPassword" : "Şifreniz yeterince güçlü değil.",
-    "emailInUse" : "Bu mail adresi kullanımdadır.",
-    "usernameInUse" :"Bu kullanıcı adı kullanımdadır, lütfen farklı bir kullanıcı adı seçiniz.",
-    "emailIsEmpty"    : "Email adresi boş bırakılamaz.",
-    "passwordIsEmpty" : "Şifre boş bırakılamaz.",
-    "usernameIsEmpty" : "Kullanıcı adı boş bırakılamaz.",
-    "emailNotValid"   : "Geçersiz email formatı.",
+  "registerScreen": {
+    "title": "Kayıt Ekranı",
+    "register": "Kayıt Ol",
+    "username": "Kullanıcı Adı",
+    "emailAddress": "E-Mail",
+    "password": "Şifre",
+    "weakPassword": "Şifreniz yeterince güçlü değil.",
+    "emailInUse": "Bu mail adresi kullanımdadır.",
+    "usernameInUse": "Bu kullanıcı adı kullanımdadır, lütfen farklı bir kullanıcı adı seçiniz.",
+    "emailIsEmpty": "Email adresi boş bırakılamaz.",
+    "passwordIsEmpty": "Şifre boş bırakılamaz.",
+    "usernameIsEmpty": "Kullanıcı adı boş bırakılamaz.",
+    "emailNotValid": "Geçersiz email formatı.",
     "usernameNotValid": "Geçersiz kullanıcı adı formatı.",
     "passwordNotValid": "Geçersiz şifre formatı."
   },
-  "loginScreen" : {
-    "title"      : "Giriş Ekranı",
-    "welcome"    : "DiziTakip'e Hoşgeldin!",
-    "username"   : "Kullanıcı Adı",
-    "password"   : "Şifre",
-    "login"      : "Giriş Yap"
+  "loginScreen": {
+    "title": "Giriş Ekranı",
+    "welcome": "DiziTakip'e Hoşgeldin!",
+    "username": "Kullanıcı Adı",
+    "password": "Şifre",
+    "login": "Giriş Yap",
+    "usernameNotValid": "Kullanıcı adı geçerli bir formatta değil.",
+    "cantFindAnAccount": "Bu kullanıcı adı kullanımda değil."
   }
 }

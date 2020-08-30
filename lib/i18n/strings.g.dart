@@ -63,6 +63,8 @@ class StringsGlobalEn extends StringsGlobal {
 	@override String get close => 'CLOSE';
 	@override String get yes => 'YES';
 	@override String get NO => 'NO';
+	@override String get and => 'and';
+	@override String get or => 'or';
 }
 
 class StringsRegisterScreenEn extends StringsRegisterScreen {
@@ -77,6 +79,12 @@ class StringsRegisterScreenEn extends StringsRegisterScreen {
 	@override String get weakPassword => 'The password provided is too weak.';
 	@override String get emailInUse => 'The account already exists for that email.';
 	@override String get usernameInUse => 'This username is taken, please pick another one.';
+	@override String get emailIsEmpty => 'Email address cannot be empty.';
+	@override String get passwordIsEmpty => 'Password cannot be empty.';
+	@override String get usernameIsEmpty => 'Username cannot be empty.';
+	@override String get emailNotValid => 'Email is not in a valid format.';
+	@override String get usernameNotValid => 'Username is not in a valid format.';
+	@override String get passwordNotValid => 'Password is not in a valid format.';
 }
 
 class StringsLoginScreenEn extends StringsLoginScreen {
@@ -88,6 +96,8 @@ class StringsLoginScreenEn extends StringsLoginScreen {
 	@override String get username => 'Username:';
 	@override String get password => 'Password:';
 	@override String get login => 'Login';
+	@override String get usernameNotValid => 'Username format is not valid.';
+	@override String get cantFindAnAccount => 'There\'s no user with this username.';
 }
 
 class Strings {
@@ -109,6 +119,8 @@ class StringsGlobal {
 	String get close => 'VAZGEÇ';
 	String get yes => 'EVET';
 	String get NO => 'HAYIR';
+	String get and => 've';
+	String get or => 'veya';
 }
 
 class StringsRegisterScreen {
@@ -140,4 +152,6 @@ class StringsLoginScreen {
 	String get username => 'Kullanıcı Adı';
 	String get password => 'Şifre';
 	String get login => 'Giriş Yap';
+	String get usernameNotValid => 'Kullanıcı adı geçerli bir formatta değil.';
+	String get cantFindAnAccount => 'Bu kullanıcı adı kullanımda değil.';
 }
