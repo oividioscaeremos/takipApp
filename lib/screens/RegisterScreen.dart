@@ -5,6 +5,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dizi_takip/classes/ApiHandlers/InitNewShow.dart';
 import 'package:dizi_takip/classes/ApiHandlers/QueryBuilder.dart';
 import 'package:dizi_takip/classes/DatabaseClasses/Show.dart';
+import 'package:dizi_takip/classes/ExceptionHandler.dart';
 import 'package:dizi_takip/classes/Palette.dart';
 import 'package:dizi_takip/classes/SizeConfig.dart';
 import 'package:dizi_takip/classes/UiOverlayStyle.dart';
@@ -128,422 +129,46 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   void _register(BuildContext context) async {
     final form = _formKey.currentState;
+    FirebaseFirestore firestore = FirebaseFirestore.instance;
 
     if (form.validate()) {
       try {
-        FirebaseFirestore firestore = FirebaseFirestore.instance;
-        firestore
-            .collection('users')
-            .where('username', isEqualTo: username)
-            .get()
-            .then((usr) async {
-          log(usr.docs.toString());
-          if (usr.docs.length != 0) {
-            return showGeneralDialog(
-              barrierColor: Colors.black.withOpacity(0.5),
-              barrierDismissible: false,
-              context: context,
-              transitionDuration: Duration(milliseconds: 500),
-              pageBuilder: (ctx, animation1, animation2) {},
-              transitionBuilder: (context, anim1, anim2, child) {
-                final curvedValue =
-                    Curves.linearToEaseOut.transform(anim1.value) - 1;
-                return Transform(
-                  transform:
-                      Matrix4.translationValues(0.0, curvedValue * 800, 0.0),
-                  child: GestureDetector(
-                    onTap: () {
-                      WidgetsBinding.instance.focusManager.primaryFocus
-                          ?.unfocus();
-                    },
-                    child: Dialog(
-                      elevation: 0.0,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20.0),
-                      ),
-                      child: Container(
-                        height: SizeConfig.safeBlockVertical * 25,
-                        padding: EdgeInsets.all(
-                          20.0,
-                        ),
-                        child: Stack(
-                          clipBehavior: Clip.hardEdge,
-                          children: [
-                            Positioned(
-                              top: 0,
-                              child: Text(
-                                t.global.error,
-                                style: TextStyle(
-                                  fontSize: 24,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                            Positioned(
-                              top: SizeConfig.safeBlockVertical * 5,
-                              child: Container(
-                                width: SizeConfig.screenWidth * 0.70,
-                                child: Text(
-                                  t.registerScreen.usernameInUse,
-                                ),
-                              ),
-                            ),
-                            Positioned(
-                              bottom: 0,
-                              right: 0,
-                              child: Row(
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                mainAxisAlignment: MainAxisAlignment.end,
-                                children: [
-                                  GestureDetector(
-                                    onTap: () {
-                                      Navigator.of(context, rootNavigator: true)
-                                          .pop('dialog');
-                                    },
-                                    child: Container(
-                                      child: Text(
-                                        t.global.close,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                );
-              },
-            );
-          } else {
-            UserCredential user =
-                await FirebaseAuth.instance.createUserWithEmailAndPassword(
-              email: emailAddress,
-              password: password,
-            );
-
-            firestore.collection('users').doc(username).set({
-              "username": username,
-              "email": emailAddress,
-              "totalWatchTimeInMinutes": 0,
-              "favoriteGenres": [],
-              "myShows": [],
-            });
-
-            Navigator.of(context).pop();
-          }
+        UserCredential user =
+            await FirebaseAuth.instance.createUserWithEmailAndPassword(
+          email: emailAddress,
+          password: password,
+        );
+        user.user.updateProfile(displayName: username);
+        firestore.collection('users').doc(username).set({
+          "username": username,
+          "email": emailAddress,
+          "totalWatchTimeInMinutes": 0,
+          "favoriteGenres": [],
+          "myShows": [],
         });
+
+        Navigator.of(context).pop();
       } on FirebaseAuthException catch (e) {
         if (e.code == 'weak-password') {
-          return showGeneralDialog(
-            barrierColor: Colors.black.withOpacity(0.5),
-            barrierDismissible: false,
-            context: context,
-            transitionDuration: Duration(milliseconds: 500),
-            pageBuilder: (ctx, animation1, animation2) {},
-            transitionBuilder: (context, anim1, anim2, child) {
-              final curvedValue =
-                  Curves.linearToEaseOut.transform(anim1.value) - 1;
-              return Transform(
-                transform:
-                    Matrix4.translationValues(0.0, curvedValue * 800, 0.0),
-                child: GestureDetector(
-                  onTap: () {
-                    WidgetsBinding.instance.focusManager.primaryFocus
-                        ?.unfocus();
-                  },
-                  child: Dialog(
-                    elevation: 0.0,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20.0),
-                    ),
-                    child: Container(
-                      height: SizeConfig.safeBlockVertical * 25,
-                      padding: EdgeInsets.all(
-                        20.0,
-                      ),
-                      child: Stack(
-                        children: [
-                          Positioned(
-                            top: 0,
-                            child: Text(
-                              t.global.error,
-                              style: TextStyle(
-                                fontSize: 24,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                          Positioned(
-                            top: SizeConfig.safeBlockVertical * 5,
-                            child: Container(
-                              width: SizeConfig.screenWidth * 0.70,
-                              child: Text(
-                                t.registerScreen.weakPassword,
-                              ),
-                            ),
-                          ),
-                          Positioned(
-                            bottom: 0,
-                            right: 0,
-                            child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              children: [
-                                GestureDetector(
-                                  onTap: () {
-                                    Navigator.of(context, rootNavigator: true)
-                                        .pop('dialog');
-                                  },
-                                  child: Container(
-                                    child: Text(
-                                      t.global.close,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              );
-            },
-          );
+          ExceptionHandler(
+              context: context, message: t.registerScreen.weakPassword);
         } else if (e.code == 'email-already-in-use') {
-          return showGeneralDialog(
-            barrierColor: Colors.black.withOpacity(0.5),
-            barrierDismissible: false,
-            context: context,
-            transitionDuration: Duration(milliseconds: 500),
-            pageBuilder: (ctx, animation1, animation2) {},
-            transitionBuilder: (context, anim1, anim2, child) {
-              final curvedValue =
-                  Curves.linearToEaseOut.transform(anim1.value) - 1;
-              return Transform(
-                transform:
-                    Matrix4.translationValues(0.0, curvedValue * 800, 0.0),
-                child: GestureDetector(
-                  onTap: () {
-                    WidgetsBinding.instance.focusManager.primaryFocus
-                        ?.unfocus();
-                  },
-                  child: Dialog(
-                    elevation: 0.0,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20.0),
-                    ),
-                    child: Container(
-                      height: SizeConfig.safeBlockVertical * 25,
-                      padding: EdgeInsets.all(
-                        20.0,
-                      ),
-                      child: Stack(
-                        children: [
-                          Positioned(
-                            top: 0,
-                            child: Text(
-                              t.global.error,
-                              style: TextStyle(
-                                fontSize: 24,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                          Positioned(
-                            top: SizeConfig.safeBlockVertical * 5,
-                            child: Container(
-                              width: SizeConfig.screenWidth * 0.70,
-                              child: Text(
-                                t.registerScreen.emailInUse,
-                              ),
-                            ),
-                          ),
-                          Positioned(
-                            bottom: 0,
-                            right: 0,
-                            child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              children: [
-                                GestureDetector(
-                                  onTap: () {
-                                    Navigator.of(context, rootNavigator: true)
-                                        .pop('dialog');
-                                  },
-                                  child: Container(
-                                    child: Text(
-                                      t.global.close,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              );
-            },
-          );
+          ExceptionHandler(
+              context: context, message: t.registerScreen.emailInUse);
         } else if (e.code == 'username-in-use') {
-          return showGeneralDialog(
-            barrierColor: Colors.black.withOpacity(0.5),
-            barrierDismissible: false,
-            context: context,
-            transitionDuration: Duration(milliseconds: 500),
-            pageBuilder: (ctx, animation1, animation2) {},
-            transitionBuilder: (context, anim1, anim2, child) {
-              final curvedValue =
-                  Curves.linearToEaseOut.transform(anim1.value) - 1;
-              return Transform(
-                transform:
-                    Matrix4.translationValues(0.0, curvedValue * 800, 0.0),
-                child: GestureDetector(
-                  onTap: () {
-                    WidgetsBinding.instance.focusManager.primaryFocus
-                        ?.unfocus();
-                  },
-                  child: Dialog(
-                    elevation: 0.0,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20.0),
-                    ),
-                    child: Container(
-                      height: SizeConfig.safeBlockVertical * 25,
-                      padding: EdgeInsets.all(
-                        20.0,
-                      ),
-                      child: Stack(
-                        children: [
-                          Positioned(
-                            top: 0,
-                            child: Text(
-                              t.global.error,
-                              style: TextStyle(
-                                fontSize: 24,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                          Positioned(
-                            top: SizeConfig.safeBlockVertical * 5,
-                            child: Container(
-                              width: SizeConfig.screenWidth * 0.70,
-                              child: Text(
-                                t.registerScreen.usernameInUse,
-                              ),
-                            ),
-                          ),
-                          Positioned(
-                            bottom: 0,
-                            right: 0,
-                            child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              children: [
-                                GestureDetector(
-                                  onTap: () {
-                                    Navigator.of(context, rootNavigator: true)
-                                        .pop('dialog');
-                                  },
-                                  child: Container(
-                                    child: Text(
-                                      t.global.close,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              );
-            },
-          );
+          ExceptionHandler(
+              context: context, message: t.registerScreen.usernameInUse);
         }
       } catch (e) {
-        return showGeneralDialog(
-          barrierColor: Colors.black.withOpacity(0.5),
-          barrierDismissible: false,
-          context: context,
-          transitionDuration: Duration(milliseconds: 500),
-          pageBuilder: (ctx, animation1, animation2) {},
-          transitionBuilder: (context, anim1, anim2, child) {
-            final curvedValue =
-                Curves.linearToEaseOut.transform(anim1.value) - 1;
-            return Transform(
-              transform: Matrix4.translationValues(0.0, curvedValue * 800, 0.0),
-              child: GestureDetector(
-                onTap: () {
-                  WidgetsBinding.instance.focusManager.primaryFocus?.unfocus();
-                },
-                child: Dialog(
-                  elevation: 0.0,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20.0),
-                  ),
-                  child: Container(
-                    height: SizeConfig.safeBlockVertical * 25,
-                    padding: EdgeInsets.all(
-                      20.0,
-                    ),
-                    child: Stack(
-                      children: [
-                        Positioned(
-                          top: 0,
-                          child: Text(
-                            t.global.error,
-                            style: TextStyle(
-                              fontSize: 24,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                        Positioned(
-                          top: SizeConfig.safeBlockVertical * 5,
-                          child: Text(
-                            e.toString(),
-                          ),
-                        ),
-                        Positioned(
-                          bottom: 0,
-                          right: 0,
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            children: [
-                              GestureDetector(
-                                onTap: () {
-                                  Navigator.of(context, rootNavigator: true)
-                                      .pop('dialog');
-                                },
-                                child: Container(
-                                  child: Text(
-                                    t.global.close,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            );
-          },
-        );
+        ExceptionHandler(context: context, message: e.toString());
+        firestore
+            .collection('errors')
+            .doc(new DateTime.now().toIso8601String())
+            .set({
+          "username": username,
+          "date": new DateTime.now(),
+          "message": e.toString(),
+        });
       }
     }
   }

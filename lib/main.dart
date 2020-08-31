@@ -4,6 +4,7 @@ import 'package:dizi_takip/classes/Palette.dart';
 import 'package:dizi_takip/classes/SizeConfig.dart';
 import 'package:dizi_takip/classes/UiOverlayStyle.dart';
 import 'package:dizi_takip/i18n/strings.g.dart';
+import 'package:dizi_takip/screens/HomePage.dart';
 import 'package:dizi_takip/screens/LoginScreen.dart';
 import 'package:dizi_takip/screens/RegisterScreen.dart';
 import 'package:flutter/cupertino.dart';
@@ -40,7 +41,8 @@ class _DiziTakipAppState extends State<DiziTakipApp> {
       initialRoute: LoginScreen.id,
       routes: {
         RegisterScreen.id: (context) => RegisterScreen(),
-        LoginScreen.id: (context) => LoginScreen()
+        LoginScreen.id: (context) => LoginScreen(),
+        HomePage.id: (context) => HomePage(),
       },
     );
   }

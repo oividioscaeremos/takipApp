@@ -1,12 +1,16 @@
 import 'dart:developer';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:dizi_takip/classes/ExceptionHandler.dart';
 import 'package:dizi_takip/classes/Palette.dart';
 import 'package:dizi_takip/classes/SizeConfig.dart';
 import 'package:dizi_takip/classes/UiOverlayStyle.dart';
 import 'package:dizi_takip/components/loginScreen/inputBox.dart';
 import 'package:dizi_takip/i18n/strings.g.dart';
+import 'package:dizi_takip/screens/HomePage.dart';
 import 'package:dizi_takip/screens/RegisterScreen.dart';
 import 'package:email_validator/email_validator.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -128,7 +132,49 @@ class _LoginScreenState extends State<LoginScreen> {
     emailAddress = _str.toLowerCase();
   }
 
-  void login() {}
+  Future<void> _login(BuildContext context) {
+    log('we here');
+    FirebaseAuth firebaseAuth = FirebaseAuth.instance;
+    FirebaseFirestore firestore = FirebaseFirestore.instance;
+    log('we here');
+    try {
+      firestore.collection('users').doc(username).get().then((userInf) {
+        log("val2");
+        log(userInf.data().toString());
+        try {
+          firebaseAuth
+              .signInWithEmailAndPassword(
+                  email: userInf.get("email").toString(), password: password)
+              .then((val) {
+            log("val");
+            log(val.toString());
+            return Navigator.pushNamed(context, HomePage.id);
+          });
+        } catch (e) {
+          ExceptionHandler(context: context, message: e.toString());
+          firestore
+              .collection('errors')
+              .doc(new DateTime.now().toIso8601String())
+              .set({
+            "username": username,
+            "date": new DateTime.now(),
+            "message": e.toString(),
+          });
+        }
+      });
+    } catch (e) {
+      ExceptionHandler(context: context, message: e.toString());
+      firestore
+          .collection('errors')
+          .doc(new DateTime.now().toIso8601String())
+          .set({
+        "username": username,
+        "date": new DateTime.now(),
+        "message": e.toString(),
+      });
+    }
+    return null;
+  }
 
   Future<void> _resetPassword(BuildContext ctx) {
     SizeConfig().init(ctx);
@@ -206,8 +252,9 @@ class _LoginScreenState extends State<LoginScreen> {
                               ),
                             ),
                             onPressed: () {
-                              Navigator.of(ctx, rootNavigator: true)
-                                  .pop('dialog');
+                              FirebaseAuth firebaseAuth = FirebaseAuth.instance;
+                              firebaseAuth.sendPasswordResetEmail(
+                                  email: emailAddress);
                             },
                           ),
                           SizedBox(
@@ -364,19 +411,22 @@ class _LoginScreenState extends State<LoginScreen> {
                                       SizeConfig.blockSizeHorizontal * 8,
                                   child: Column(
                                     children: [
-                                      Container(
-                                        decoration: BoxDecoration(
-                                          color: Palette().white,
-                                          borderRadius:
-                                              BorderRadius.circular(25),
-                                        ),
-                                        child: Padding(
-                                          padding: const EdgeInsets.all(14.0),
-                                          child: Text(
-                                            t.loginScreen.login,
-                                            style: TextStyle(
-                                              fontSize: 16,
-                                              fontWeight: FontWeight.bold,
+                                      GestureDetector(
+                                        onTap: () => _login(context),
+                                        child: Container(
+                                          decoration: BoxDecoration(
+                                            color: Palette().white,
+                                            borderRadius:
+                                                BorderRadius.circular(25),
+                                          ),
+                                          child: Padding(
+                                            padding: const EdgeInsets.all(14.0),
+                                            child: Text(
+                                              t.loginScreen.login,
+                                              style: TextStyle(
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.bold,
+                                              ),
                                             ),
                                           ),
                                         ),
