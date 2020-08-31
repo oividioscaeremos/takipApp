@@ -64,7 +64,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
       _showErrorForEmail = true;
       return t.registerScreen.emailIsEmpty;
     }
-    log(EmailValidator.validate(str.toLowerCase()).toString());
     if (!EmailValidator.validate(str.toLowerCase())) {
       setState(() {
         _showErrorForEmail = true;
@@ -78,7 +77,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     }
   }
 
-  String _validateUsername() {
+  String _validateUsername(String str) {
     RegExp regExp =
         new RegExp(r'^[a-zA-Z0-9]([._](?![._])|[a-zA-Z0-9]){6,18}[a-zA-Z0-9]');
 
@@ -93,12 +92,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
     return null;
   }
 
+  void _onChangeEmail(String _str) {
+    emailAddress = _str.toLowerCase();
+  }
+
   void _onChangeUsername(String _str) {
     username = _str.toLowerCase();
   }
 
-  void _onChangeEmail(String _str) {
-    emailAddress = _str.toLowerCase();
+  void _onChangePassword(String _str) {
+    password = _str;
   }
 
   void _onFocusChange() {
@@ -131,28 +134,88 @@ class _RegisterScreenState extends State<RegisterScreen> {
         FirebaseFirestore firestore = FirebaseFirestore.instance;
         firestore
             .collection('users')
-            .where('username', isEqualTo: emailAddress)
+            .where('username', isEqualTo: username)
             .get()
             .then((usr) async {
-          log("usr.docs.length.toString()");
-          log(usr.docs.length.toString());
-          if (usr.docs.isEmpty) {
-            return showDialog(
+          log(usr.docs.toString());
+          if (usr.docs.length != 0) {
+            return showGeneralDialog(
+              barrierColor: Colors.black.withOpacity(0.5),
+              barrierDismissible: false,
               context: context,
-              builder: (_) => AlertDialog(
-                title: Text(
-                  t.global.error,
-                ),
-                content: Text(t.registerScreen.weakPassword),
-                actions: [
-                  RaisedButton(
-                    child: Text(t.global.ok),
-                    onPressed: () {
-                      Navigator.of(context).pop();
+              transitionDuration: Duration(milliseconds: 500),
+              pageBuilder: (ctx, animation1, animation2) {},
+              transitionBuilder: (context, anim1, anim2, child) {
+                final curvedValue =
+                    Curves.linearToEaseOut.transform(anim1.value) - 1;
+                return Transform(
+                  transform:
+                      Matrix4.translationValues(0.0, curvedValue * 800, 0.0),
+                  child: GestureDetector(
+                    onTap: () {
+                      WidgetsBinding.instance.focusManager.primaryFocus
+                          ?.unfocus();
                     },
-                  )
-                ],
-              ),
+                    child: Dialog(
+                      elevation: 0.0,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20.0),
+                      ),
+                      child: Container(
+                        height: SizeConfig.safeBlockVertical * 25,
+                        padding: EdgeInsets.all(
+                          20.0,
+                        ),
+                        child: Stack(
+                          clipBehavior: Clip.hardEdge,
+                          children: [
+                            Positioned(
+                              top: 0,
+                              child: Text(
+                                t.global.error,
+                                style: TextStyle(
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                            Positioned(
+                              top: SizeConfig.safeBlockVertical * 5,
+                              child: Container(
+                                width: SizeConfig.screenWidth * 0.70,
+                                child: Text(
+                                  t.registerScreen.usernameInUse,
+                                ),
+                              ),
+                            ),
+                            Positioned(
+                              bottom: 0,
+                              right: 0,
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  GestureDetector(
+                                    onTap: () {
+                                      Navigator.of(context, rootNavigator: true)
+                                          .pop('dialog');
+                                    },
+                                    child: Container(
+                                      child: Text(
+                                        t.global.close,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                );
+              },
             );
           } else {
             UserCredential user =
@@ -161,89 +224,325 @@ class _RegisterScreenState extends State<RegisterScreen> {
               password: password,
             );
 
-            firestore.collection('users').add({
+            firestore.collection('users').doc(username).set({
               "username": username,
               "email": emailAddress,
               "totalWatchTimeInMinutes": 0,
               "favoriteGenres": [],
               "myShows": [],
             });
+
+            Navigator.of(context).pop();
           }
         });
       } on FirebaseAuthException catch (e) {
         if (e.code == 'weak-password') {
-          return showDialog(
+          return showGeneralDialog(
+            barrierColor: Colors.black.withOpacity(0.5),
+            barrierDismissible: false,
             context: context,
-            builder: (_) => AlertDialog(
-              title: Text(
-                t.global.error,
-              ),
-              content: Text(t.registerScreen.weakPassword),
-              actions: [
-                RaisedButton(
-                  child: Text(t.global.ok),
-                  onPressed: () {
-                    Navigator.of(context).pop();
+            transitionDuration: Duration(milliseconds: 500),
+            pageBuilder: (ctx, animation1, animation2) {},
+            transitionBuilder: (context, anim1, anim2, child) {
+              final curvedValue =
+                  Curves.linearToEaseOut.transform(anim1.value) - 1;
+              return Transform(
+                transform:
+                    Matrix4.translationValues(0.0, curvedValue * 800, 0.0),
+                child: GestureDetector(
+                  onTap: () {
+                    WidgetsBinding.instance.focusManager.primaryFocus
+                        ?.unfocus();
                   },
-                )
-              ],
-            ),
+                  child: Dialog(
+                    elevation: 0.0,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20.0),
+                    ),
+                    child: Container(
+                      height: SizeConfig.safeBlockVertical * 25,
+                      padding: EdgeInsets.all(
+                        20.0,
+                      ),
+                      child: Stack(
+                        children: [
+                          Positioned(
+                            top: 0,
+                            child: Text(
+                              t.global.error,
+                              style: TextStyle(
+                                fontSize: 24,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                          Positioned(
+                            top: SizeConfig.safeBlockVertical * 5,
+                            child: Container(
+                              width: SizeConfig.screenWidth * 0.70,
+                              child: Text(
+                                t.registerScreen.weakPassword,
+                              ),
+                            ),
+                          ),
+                          Positioned(
+                            bottom: 0,
+                            right: 0,
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                GestureDetector(
+                                  onTap: () {
+                                    Navigator.of(context, rootNavigator: true)
+                                        .pop('dialog');
+                                  },
+                                  child: Container(
+                                    child: Text(
+                                      t.global.close,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              );
+            },
           );
         } else if (e.code == 'email-already-in-use') {
-          return showDialog(
+          return showGeneralDialog(
+            barrierColor: Colors.black.withOpacity(0.5),
+            barrierDismissible: false,
             context: context,
-            builder: (_) => AlertDialog(
-              title: Text(
-                t.global.error,
-              ),
-              content: Text(t.registerScreen.emailInUse),
-              actions: [
-                RaisedButton(
-                  child: Text(t.global.ok),
-                  onPressed: () {
-                    Navigator.of(context).pop();
+            transitionDuration: Duration(milliseconds: 500),
+            pageBuilder: (ctx, animation1, animation2) {},
+            transitionBuilder: (context, anim1, anim2, child) {
+              final curvedValue =
+                  Curves.linearToEaseOut.transform(anim1.value) - 1;
+              return Transform(
+                transform:
+                    Matrix4.translationValues(0.0, curvedValue * 800, 0.0),
+                child: GestureDetector(
+                  onTap: () {
+                    WidgetsBinding.instance.focusManager.primaryFocus
+                        ?.unfocus();
                   },
-                )
-              ],
-            ),
+                  child: Dialog(
+                    elevation: 0.0,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20.0),
+                    ),
+                    child: Container(
+                      height: SizeConfig.safeBlockVertical * 25,
+                      padding: EdgeInsets.all(
+                        20.0,
+                      ),
+                      child: Stack(
+                        children: [
+                          Positioned(
+                            top: 0,
+                            child: Text(
+                              t.global.error,
+                              style: TextStyle(
+                                fontSize: 24,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                          Positioned(
+                            top: SizeConfig.safeBlockVertical * 5,
+                            child: Container(
+                              width: SizeConfig.screenWidth * 0.70,
+                              child: Text(
+                                t.registerScreen.emailInUse,
+                              ),
+                            ),
+                          ),
+                          Positioned(
+                            bottom: 0,
+                            right: 0,
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                GestureDetector(
+                                  onTap: () {
+                                    Navigator.of(context, rootNavigator: true)
+                                        .pop('dialog');
+                                  },
+                                  child: Container(
+                                    child: Text(
+                                      t.global.close,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              );
+            },
           );
         } else if (e.code == 'username-in-use') {
-          log("bith we here");
-          return showDialog(
+          return showGeneralDialog(
+            barrierColor: Colors.black.withOpacity(0.5),
+            barrierDismissible: false,
             context: context,
-            builder: (_) => AlertDialog(
-              title: Text(
-                t.global.error,
-              ),
-              content: Text(t.registerScreen.usernameInUse),
-              actions: [
-                RaisedButton(
-                  child: Text(t.global.ok),
-                  onPressed: () {
-                    Navigator.of(context).pop();
+            transitionDuration: Duration(milliseconds: 500),
+            pageBuilder: (ctx, animation1, animation2) {},
+            transitionBuilder: (context, anim1, anim2, child) {
+              final curvedValue =
+                  Curves.linearToEaseOut.transform(anim1.value) - 1;
+              return Transform(
+                transform:
+                    Matrix4.translationValues(0.0, curvedValue * 800, 0.0),
+                child: GestureDetector(
+                  onTap: () {
+                    WidgetsBinding.instance.focusManager.primaryFocus
+                        ?.unfocus();
                   },
-                )
-              ],
-            ),
+                  child: Dialog(
+                    elevation: 0.0,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20.0),
+                    ),
+                    child: Container(
+                      height: SizeConfig.safeBlockVertical * 25,
+                      padding: EdgeInsets.all(
+                        20.0,
+                      ),
+                      child: Stack(
+                        children: [
+                          Positioned(
+                            top: 0,
+                            child: Text(
+                              t.global.error,
+                              style: TextStyle(
+                                fontSize: 24,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                          Positioned(
+                            top: SizeConfig.safeBlockVertical * 5,
+                            child: Container(
+                              width: SizeConfig.screenWidth * 0.70,
+                              child: Text(
+                                t.registerScreen.usernameInUse,
+                              ),
+                            ),
+                          ),
+                          Positioned(
+                            bottom: 0,
+                            right: 0,
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                GestureDetector(
+                                  onTap: () {
+                                    Navigator.of(context, rootNavigator: true)
+                                        .pop('dialog');
+                                  },
+                                  child: Container(
+                                    child: Text(
+                                      t.global.close,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              );
+            },
           );
         }
       } catch (e) {
-        return showDialog(
+        return showGeneralDialog(
+          barrierColor: Colors.black.withOpacity(0.5),
+          barrierDismissible: false,
           context: context,
-          builder: (_) => AlertDialog(
-            title: Text(
-              t.global.error,
-            ),
-            content: Text(t.registerScreen.weakPassword),
-            actions: [
-              RaisedButton(
-                child: Text(e.toString()),
-                onPressed: () {
-                  Navigator.of(context).pop();
+          transitionDuration: Duration(milliseconds: 500),
+          pageBuilder: (ctx, animation1, animation2) {},
+          transitionBuilder: (context, anim1, anim2, child) {
+            final curvedValue =
+                Curves.linearToEaseOut.transform(anim1.value) - 1;
+            return Transform(
+              transform: Matrix4.translationValues(0.0, curvedValue * 800, 0.0),
+              child: GestureDetector(
+                onTap: () {
+                  WidgetsBinding.instance.focusManager.primaryFocus?.unfocus();
                 },
-              )
-            ],
-          ),
+                child: Dialog(
+                  elevation: 0.0,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20.0),
+                  ),
+                  child: Container(
+                    height: SizeConfig.safeBlockVertical * 25,
+                    padding: EdgeInsets.all(
+                      20.0,
+                    ),
+                    child: Stack(
+                      children: [
+                        Positioned(
+                          top: 0,
+                          child: Text(
+                            t.global.error,
+                            style: TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                        Positioned(
+                          top: SizeConfig.safeBlockVertical * 5,
+                          child: Text(
+                            e.toString(),
+                          ),
+                        ),
+                        Positioned(
+                          bottom: 0,
+                          right: 0,
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              GestureDetector(
+                                onTap: () {
+                                  Navigator.of(context, rootNavigator: true)
+                                      .pop('dialog');
+                                },
+                                child: Container(
+                                  child: Text(
+                                    t.global.close,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            );
+          },
         );
       }
     }
@@ -283,10 +582,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         backgroundColor: Palette().darkGrey,
         body: GestureDetector(
           onTap: () {
-            FocusScopeNode currentFocus = FocusScope.of(context);
-            if (!currentFocus.hasPrimaryFocus) {
-              currentFocus.unfocus();
-            }
+            WidgetsBinding.instance.focusManager.primaryFocus?.unfocus();
           },
           child: Form(
             key: _formKey,
@@ -298,7 +594,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text(t.registerScreen.register),
+                    Text(
+                      t.registerScreen.register,
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        color: Palette().white.withOpacity(0.8),
+                      ),
+                    ),
                     SizedBox(
                       height: SizeConfig.safeBlockVertical * 5,
                     ),
@@ -336,7 +639,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       labelText: t.registerScreen.password,
                       id: 'password',
                       validate: _validatePassword,
-                      onChanged: _onChangeEmail,
+                      onChanged: _onChangePassword,
                       bgColor: _pwdColor,
                       onEnabledbgColor: Palette().grey.withOpacity(0.9),
                       prefixIcon: Icons.lock_open,

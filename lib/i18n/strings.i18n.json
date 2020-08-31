@@ -7,7 +7,8 @@
     "yes": "EVET",
     "NO": "HAYIR",
     "and": "ve",
-    "or": "veya"
+    "or": "veya",
+    "success": "BAŞARILI"
   },
   "registerScreen": {
     "title": "Kayıt Ekranı",
@@ -23,7 +24,8 @@
     "usernameIsEmpty": "Kullanıcı adı boş bırakılamaz.",
     "emailNotValid": "Geçersiz email formatı.",
     "usernameNotValid": "Geçersiz kullanıcı adı formatı.",
-    "passwordNotValid": "Geçersiz şifre formatı."
+    "passwordNotValid": "Geçersiz şifre formatı.",
+    "alreadyHaveAnAccount": "Zaten bir hesabın var mı? Giriş Yap!"
   },
   "loginScreen": {
     "title": "Giriş Ekranı",
@@ -32,6 +34,9 @@
     "password": "Şifre",
     "login": "Giriş Yap",
     "usernameNotValid": "Kullanıcı adı geçerli bir formatta değil.",
-    "cantFindAnAccount": "Bu kullanıcı adı kullanımda değil."
+    "cantFindAnAccount": "Bu kullanıcı adı kullanımda değil.",
+    "forgotMyPassword": "Şifreni sıfırlamak için tıkla.",
+    "popupPasswordHeader": "Şifre Sıfırla",
+    "sendMail": "Şifre Sıfırla"
   }
 }

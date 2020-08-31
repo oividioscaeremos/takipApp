@@ -65,6 +65,7 @@ class StringsGlobalEn extends StringsGlobal {
 	@override String get NO => 'NO';
 	@override String get and => 'and';
 	@override String get or => 'or';
+	@override String get success => 'SUCCESS';
 }
 
 class StringsRegisterScreenEn extends StringsRegisterScreen {
@@ -85,6 +86,7 @@ class StringsRegisterScreenEn extends StringsRegisterScreen {
 	@override String get emailNotValid => 'Email is not in a valid format.';
 	@override String get usernameNotValid => 'Username is not in a valid format.';
 	@override String get passwordNotValid => 'Password is not in a valid format.';
+	@override String get alreadyHaveAnAccount => 'Already have an account, tap to log in!';
 }
 
 class StringsLoginScreenEn extends StringsLoginScreen {
@@ -98,6 +100,9 @@ class StringsLoginScreenEn extends StringsLoginScreen {
 	@override String get login => 'Login';
 	@override String get usernameNotValid => 'Username format is not valid.';
 	@override String get cantFindAnAccount => 'There\'s no user with this username.';
+	@override String get forgotMyPassword => 'Click to reset your password.';
+	@override String get popupPasswordHeader => 'Reset Password';
+	@override String get sendMail => 'Reset Password';
 }
 
 class Strings {
@@ -121,6 +126,7 @@ class StringsGlobal {
 	String get NO => 'HAYIR';
 	String get and => 've';
 	String get or => 'veya';
+	String get success => 'BAŞARILI';
 }
 
 class StringsRegisterScreen {
@@ -141,6 +147,7 @@ class StringsRegisterScreen {
 	String get emailNotValid => 'Geçersiz email formatı.';
 	String get usernameNotValid => 'Geçersiz kullanıcı adı formatı.';
 	String get passwordNotValid => 'Geçersiz şifre formatı.';
+	String get alreadyHaveAnAccount => 'Zaten bir hesabın var mı? Giriş Yap!';
 }
 
 class StringsLoginScreen {
@@ -154,4 +161,7 @@ class StringsLoginScreen {
 	String get login => 'Giriş Yap';
 	String get usernameNotValid => 'Kullanıcı adı geçerli bir formatta değil.';
 	String get cantFindAnAccount => 'Bu kullanıcı adı kullanımda değil.';
+	String get forgotMyPassword => 'Şifreni sıfırlamak için tıkla.';
+	String get popupPasswordHeader => 'Şifre Sıfırla';
+	String get sendMail => 'Şifre Sıfırla';
 }
