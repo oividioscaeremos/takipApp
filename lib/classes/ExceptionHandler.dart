@@ -2,7 +2,8 @@ import 'package:dizi_takip/i18n/strings.g.dart';
 import 'package:flutter/material.dart';
 import 'SizeConfig.dart';
 
-Future<void> ExceptionHandler({BuildContext context, String message}) {
+Future<void> ExceptionHandler(
+    {BuildContext context, String message, String header, String buttonText}) {
   return showGeneralDialog(
     barrierColor: Colors.black.withOpacity(0.5),
     barrierDismissible: false,
@@ -32,7 +33,7 @@ Future<void> ExceptionHandler({BuildContext context, String message}) {
                   Positioned(
                     top: 0,
                     child: Text(
-                      t.global.error,
+                      header == null ? t.global.error : header,
                       style: TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.bold,
@@ -62,7 +63,7 @@ Future<void> ExceptionHandler({BuildContext context, String message}) {
                           },
                           child: Container(
                             child: Text(
-                              t.global.close,
+                              buttonText == null ? t.global.close : buttonText,
                             ),
                           ),
                         ),

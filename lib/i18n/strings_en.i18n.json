@@ -8,7 +8,8 @@
     "NO": "NO",
     "and": "and",
     "or": "or",
-    "success": "SUCCESS"
+    "success": "SUCCESS",
+    "fieldCantBeEmpty": "This field cannot be left empty."
   },
   "registerScreen": {
     "title": "Register Screen",
@@ -37,6 +38,7 @@
     "cantFindAnAccount": "There's no user with this username.",
     "forgotMyPassword": "Click to reset your password.",
     "popupPasswordHeader": "Reset Password",
-    "sendMail": "Reset Password"
+    "sendMail": "Reset Password",
+    "emailSentIfThereIsACorrespondingUserForEmail": "If there's an account going by this e-mail address, check your inbox for a password reset mail."
   }
 }

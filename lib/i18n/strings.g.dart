@@ -66,6 +66,7 @@ class StringsGlobalEn extends StringsGlobal {
 	@override String get and => 'and';
 	@override String get or => 'or';
 	@override String get success => 'SUCCESS';
+	@override String get fieldCantBeEmpty => 'This field cannot be left empty.';
 }
 
 class StringsRegisterScreenEn extends StringsRegisterScreen {
@@ -103,6 +104,7 @@ class StringsLoginScreenEn extends StringsLoginScreen {
 	@override String get forgotMyPassword => 'Click to reset your password.';
 	@override String get popupPasswordHeader => 'Reset Password';
 	@override String get sendMail => 'Reset Password';
+	@override String get emailSentIfThereIsACorrespondingUserForEmail => 'If there\'s an account going by this e-mail address, check your inbox for a password reset mail.';
 }
 
 class Strings {
@@ -127,6 +129,7 @@ class StringsGlobal {
 	String get and => 've';
 	String get or => 'veya';
 	String get success => 'BAŞARILI';
+	String get fieldCantBeEmpty => 'Alan boş bırakılamaz.';
 }
 
 class StringsRegisterScreen {
@@ -164,4 +167,5 @@ class StringsLoginScreen {
 	String get forgotMyPassword => 'Şifreni sıfırlamak için tıkla.';
 	String get popupPasswordHeader => 'Şifre Sıfırla';
 	String get sendMail => 'Şifre Sıfırla';
+	String get emailSentIfThereIsACorrespondingUserForEmail => 'Bu email adresine ait bir kullanıcı varsa kısa süre içerisinde şifre sıfırlama için mail alacaksınız.';
 }

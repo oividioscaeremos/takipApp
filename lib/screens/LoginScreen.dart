@@ -11,6 +11,7 @@ import 'package:dizi_takip/screens/HomePage.dart';
 import 'package:dizi_takip/screens/RegisterScreen.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -28,6 +29,7 @@ class _LoginScreenState extends State<LoginScreen> {
   bool _usernameShowError = false;
   bool _showErrorForEmail = false;
   bool _passwordShowError = false;
+  bool _showLoading = false;
   Color _usernameColor = Palette().darkGrey;
   Color _pwdColor = Palette().darkGrey;
 
@@ -90,20 +92,31 @@ class _LoginScreenState extends State<LoginScreen> {
     password = str;
   }
 
-  String _validateUsername() {
-    RegExp regExp =
-        new RegExp(r'^[a-zA-Z0-9]([._](?![._])|[a-zA-Z0-9]){6,18}[a-zA-Z0-9]');
-
-    if (!regExp.hasMatch(username)) {
+  String _validateUsername(String str) {
+    if (str.isEmpty) {
       setState(() {
         _usernameShowError = true;
       });
-      return t.loginScreen.usernameNotValid;
+      return t.global.fieldCantBeEmpty;
     }
+
+    setState(() {
+      _usernameShowError = false;
+    });
     return null;
   }
 
-  String _validatePassword() {
+  String _validatePassword(String str) {
+    if (str.isEmpty) {
+      setState(() {
+        _passwordShowError = true;
+      });
+      return t.global.fieldCantBeEmpty;
+    } else {
+      setState(() {
+        _passwordShowError = false;
+      });
+    }
     return null;
   }
 
@@ -111,8 +124,10 @@ class _LoginScreenState extends State<LoginScreen> {
     RegExp regExp = new RegExp(
         r"^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,253}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,253}[a-zA-Z0-9])?)*$");
     if (str.isEmpty) {
-      _showErrorForEmail = true;
-      return t.registerScreen.emailIsEmpty;
+      setState(() {
+        _showErrorForEmail = true;
+      });
+      return t.global.fieldCantBeEmpty;
     }
     log(EmailValidator.validate(str.toLowerCase()).toString());
     if (!EmailValidator.validate(str.toLowerCase())) {
@@ -134,50 +149,68 @@ class _LoginScreenState extends State<LoginScreen> {
 
   Future<void> _login(BuildContext context) {
     log('we here');
-    FirebaseAuth firebaseAuth = FirebaseAuth.instance;
-    FirebaseFirestore firestore = FirebaseFirestore.instance;
-    log('we here');
-    try {
-      firestore.collection('users').doc(username).get().then((userInf) {
-        log("val2");
-        log(userInf.data().toString());
-        try {
+    FormState formState = _formKey.currentState;
+
+    if (formState.validate()) {
+      Firebase.initializeApp();
+      FirebaseAuth firebaseAuth = FirebaseAuth.instance;
+      FirebaseFirestore firestore = FirebaseFirestore.instance;
+      log('we here');
+      try {
+        firestore
+            .collection('users')
+            .doc(username)
+            .get()
+            .catchError((Object error) {
+          print("error.toString()");
+          print(error.toString());
+        }).then((userInf) {
+          if (userInf.data() == null) {
+            return ExceptionHandler(
+                buttonText: t.global.ok,
+                context: context,
+                message: t.loginScreen.cantFindAnAccount);
+          }
+          log("val2");
+          log(userInf.data().toString());
+
           firebaseAuth
               .signInWithEmailAndPassword(
                   email: userInf.get("email").toString(), password: password)
-              .then((val) {
+              .catchError((err) {
+            ExceptionHandler(context: context, message: err.toString());
+            firestore
+                .collection('errors')
+                .doc(new DateTime.now().toIso8601String())
+                .set({
+              "username": username,
+              "date": new DateTime.now(),
+              "message": (err as FirebaseAuthException).message.toString(),
+            });
+          }).then((val) {
             log("val");
             log(val.toString());
             return Navigator.pushNamed(context, HomePage.id);
           });
-        } catch (e) {
-          ExceptionHandler(context: context, message: e.toString());
-          firestore
-              .collection('errors')
-              .doc(new DateTime.now().toIso8601String())
-              .set({
-            "username": username,
-            "date": new DateTime.now(),
-            "message": e.toString(),
-          });
-        }
-      });
-    } catch (e) {
-      ExceptionHandler(context: context, message: e.toString());
-      firestore
-          .collection('errors')
-          .doc(new DateTime.now().toIso8601String())
-          .set({
-        "username": username,
-        "date": new DateTime.now(),
-        "message": e.toString(),
-      });
+        });
+      } catch (e) {
+        ExceptionHandler(context: context, message: e.toString());
+        firestore
+            .collection('errors')
+            .doc(new DateTime.now().toIso8601String())
+            .set({
+          "username": username,
+          "date": new DateTime.now(),
+          "message": e.toString(),
+        });
+      }
     }
     return null;
   }
 
   Future<void> _resetPassword(BuildContext ctx) {
     SizeConfig().init(ctx);
+    Firebase.initializeApp();
 
     return showGeneralDialog(
       barrierColor: Colors.black.withOpacity(0.5),
@@ -253,8 +286,30 @@ class _LoginScreenState extends State<LoginScreen> {
                             ),
                             onPressed: () {
                               FirebaseAuth firebaseAuth = FirebaseAuth.instance;
-                              firebaseAuth.sendPasswordResetEmail(
-                                  email: emailAddress);
+                              firebaseAuth
+                                  .sendPasswordResetEmail(email: emailAddress)
+                                  .catchError((Object e) {
+                                if (e is FirebaseAuthException) {
+                                  if (e.code == "user-not-found") {
+                                    return ExceptionHandler(
+                                        header: t.global.warning,
+                                        buttonText: t.global.ok,
+                                        context: context,
+                                        message: t.loginScreen
+                                            .emailSentIfThereIsACorrespondingUserForEmail);
+                                  } else {
+                                    return ExceptionHandler(
+                                        context: context,
+                                        message: e.toString());
+                                  }
+                                } else {
+                                  return ExceptionHandler(
+                                      context: context, message: e.toString());
+                                }
+                              }).then((v) {
+                                Navigator.of(context, rootNavigator: true)
+                                    .pop('dialog');
+                              });
                             },
                           ),
                           SizedBox(
@@ -286,49 +341,6 @@ class _LoginScreenState extends State<LoginScreen> {
         );
       },
     );
-
-    /*
-    * AlertDialog(
-        backgroundColor: Palette().darkGrey,
-        title: Text(
-          t.loginScreen.popupPasswordHeader,
-          style: TextStyle(
-            color: Palette().white,
-          ),
-        ),
-        content: InputBox(
-          prefixIcon: Icons.email,
-          validate: _validateEmail,
-          showError: _showErrorForEmail,
-          onChanged: _onChangeEmail,
-          labelText: t.registerScreen.emailAddress,
-          id: "email",
-          bgColor: Palette().grey.withOpacity(0.5),
-          inputType: TextInputType.emailAddress,
-        ),
-        actions: [
-          Center(
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                RaisedButton(
-                  child: Text(t.global.close),
-                  onPressed: () {
-                    Navigator.of(ctx, rootNavigator: true).pop('dialog');
-                  },
-                ),
-                RaisedButton(
-                  child: Text(t.global.ok),
-                  onPressed: () {
-                    Navigator.of(ctx, rootNavigator: true).pop('dialog');
-                  },
-                ),
-              ],
-            ),
-          )
-        ],
-      ),
-    * */
   }
 
   @override
