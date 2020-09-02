@@ -30,8 +30,8 @@ class _LoginScreenState extends State<LoginScreen> {
   bool _showErrorForEmail = false;
   bool _passwordShowError = false;
   bool _showLoading = false;
-  Color _usernameColor = Palette().darkGrey;
-  Color _pwdColor = Palette().darkGrey;
+  Color _usernameColor = Palette().colorPrimary;
+  Color _pwdColor = Palette().colorPrimary;
 
   FocusNode _A = new FocusNode();
   FocusNode _B = new FocusNode();
@@ -42,24 +42,33 @@ class _LoginScreenState extends State<LoginScreen> {
   void initState() {
     // TODO: implement initState
     super.initState();
+    Firebase.initializeApp().whenComplete(() {
+      FirebaseAuth.instance.authStateChanges().listen((user) {
+        if (user != null) {
+          // user is already signed in
+          return Navigator.popAndPushNamed(context, HomePage.id);
+        }
+      });
+    });
 
     _A.addListener(_onFocusChange);
     _B.addListener(_onFocusChange);
 
-    UiOverlayStyle(Palette().grey, Brightness.dark);
+    UiOverlayStyle()
+        .UiOverlayStyleBoth(Palette().colorSecondary, Brightness.dark);
   }
 
   void _onFocusChange() {
     setState(() {
       if (_A.hasFocus) {
-        _usernameColor = Palette().darkGrey.withOpacity(0.7);
-        _pwdColor = Palette().darkGrey;
+        _usernameColor = Palette().colorPrimary.withOpacity(0.7);
+        _pwdColor = Palette().colorPrimary;
       } else if (_B.hasFocus) {
-        _usernameColor = Palette().darkGrey;
-        _pwdColor = Palette().darkGrey.withOpacity(0.7);
+        _usernameColor = Palette().colorPrimary;
+        _pwdColor = Palette().colorPrimary.withOpacity(0.7);
       } else {
-        _usernameColor = Palette().darkGrey;
-        _pwdColor = Palette().darkGrey;
+        _usernameColor = Palette().colorPrimary;
+        _pwdColor = Palette().colorPrimary;
       }
     });
   }
@@ -155,16 +164,8 @@ class _LoginScreenState extends State<LoginScreen> {
       Firebase.initializeApp();
       FirebaseAuth firebaseAuth = FirebaseAuth.instance;
       FirebaseFirestore firestore = FirebaseFirestore.instance;
-      log('we here');
       try {
-        firestore
-            .collection('users')
-            .doc(username)
-            .get()
-            .catchError((Object error) {
-          print("error.toString()");
-          print(error.toString());
-        }).then((userInf) {
+        firestore.collection('users').doc(username).get().then((userInf) {
           if (userInf.data() == null) {
             return ExceptionHandler(
                 buttonText: t.global.ok,
@@ -258,7 +259,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           onChanged: _onChangeEmail,
                           labelText: t.registerScreen.emailAddress,
                           id: "email",
-                          bgColor: Palette().darkGrey.withOpacity(0.8),
+                          bgColor: Palette().colorPrimary.withOpacity(0.8),
                           inputType: TextInputType.emailAddress,
                         ),
                       ),
@@ -271,17 +272,17 @@ class _LoginScreenState extends State<LoginScreen> {
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
                           RaisedButton(
-                            color: Palette().darkGrey,
+                            color: Palette().colorPrimary,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(18.0),
                               side: BorderSide(
-                                color: Palette().grey,
+                                color: Palette().colorSecondary,
                               ),
                             ),
                             child: Text(
                               t.loginScreen.sendMail.toUpperCase(),
                               style: TextStyle(
-                                color: Palette().white,
+                                color: Palette().colorQuaternary,
                               ),
                             ),
                             onPressed: () {
@@ -355,7 +356,7 @@ class _LoginScreenState extends State<LoginScreen> {
         },
         child: Scaffold(
           resizeToAvoidBottomInset: false,
-          backgroundColor: Palette().grey,
+          backgroundColor: Palette().colorSecondary,
           body: SafeArea(
             child: Container(
               height: SizeConfig.screenHeight,
@@ -371,7 +372,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         style: TextStyle(
                           fontSize: 24,
                           fontWeight: FontWeight.bold,
-                          color: Palette().white.withOpacity(0.8),
+                          color: Palette().colorQuaternary.withOpacity(0.8),
                         ),
                       ),
                       SizedBox(
@@ -382,7 +383,8 @@ class _LoginScreenState extends State<LoginScreen> {
                         id: "username",
                         labelText: t.loginScreen.username,
                         onChanged: _usernameChanged,
-                        onEnabledbgColor: Palette().darkGrey.withOpacity(0.9),
+                        onEnabledbgColor:
+                            Palette().colorPrimary.withOpacity(0.9),
                         showError: _usernameShowError,
                         validate: _validateUsername,
                         prefixIcon: Icons.account_circle,
@@ -396,7 +398,8 @@ class _LoginScreenState extends State<LoginScreen> {
                         id: "password",
                         labelText: t.loginScreen.password,
                         onChanged: _passwordChanged,
-                        onEnabledbgColor: Palette().darkGrey.withOpacity(0.9),
+                        onEnabledbgColor:
+                            Palette().colorPrimary.withOpacity(0.9),
                         showError: _passwordShowError,
                         validate: _validatePassword,
                         prefixIcon: Icons.lock_outline,
@@ -427,7 +430,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                         onTap: () => _login(context),
                                         child: Container(
                                           decoration: BoxDecoration(
-                                            color: Palette().white,
+                                            color: Palette().colorQuaternary,
                                             borderRadius:
                                                 BorderRadius.circular(25),
                                           ),
@@ -458,8 +461,9 @@ class _LoginScreenState extends State<LoginScreen> {
                                       Text(
                                         t.global.or,
                                         style: TextStyle(
-                                          color:
-                                              Palette().white.withOpacity(0.8),
+                                          color: Palette()
+                                              .colorQuaternary
+                                              .withOpacity(0.8),
                                         ),
                                       ),
                                       SizedBox(
@@ -474,7 +478,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                           child: Text(
                                             t.registerScreen.register,
                                             style: TextStyle(
-                                              color: Palette().white,
+                                              color: Palette().colorQuaternary,
                                               fontWeight: FontWeight.bold,
                                             ),
                                           ),
@@ -494,7 +498,9 @@ class _LoginScreenState extends State<LoginScreen> {
                                 child: Text(
                                   t.loginScreen.forgotMyPassword,
                                   style: TextStyle(
-                                    color: Palette().white.withOpacity(0.6),
+                                    color: Palette()
+                                        .colorQuaternary
+                                        .withOpacity(0.6),
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),

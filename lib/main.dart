@@ -7,6 +7,8 @@ import 'package:dizi_takip/i18n/strings.g.dart';
 import 'package:dizi_takip/screens/HomePage.dart';
 import 'package:dizi_takip/screens/LoginScreen.dart';
 import 'package:dizi_takip/screens/RegisterScreen.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -28,7 +30,8 @@ class _DiziTakipAppState extends State<DiziTakipApp> {
   void initState() {
     super.initState();
 
-    UiOverlayStyle(Palette().grey, Brightness.dark);
+    UiOverlayStyle()
+        .UiOverlayStyleBoth(Palette().colorSecondary, Brightness.dark);
 
     LocaleSettings.setLocale(
         LocaleSettings.currentLocale == "tr" ? "tr" : "en");

@@ -30,9 +30,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
   String username;
   String emailAddress;
   String password;
-  Color _emailColor = Palette().grey;
-  Color _usernameColor = Palette().grey;
-  Color _pwdColor = Palette().grey;
+  Color _emailColor = Palette().colorSecondary;
+  Color _usernameColor = Palette().colorSecondary;
+  Color _pwdColor = Palette().colorSecondary;
   bool _showErrorForEmail = false;
   bool _showErrorForUsername = false;
   bool _showErrorForPassword = false;
@@ -55,7 +55,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
       setState(() {});
     });
 
-    UiOverlayStyle(Palette().darkGrey, Brightness.light);
+    UiOverlayStyle()
+        .UiOverlayStyleBoth(Palette().colorPrimary, Brightness.light);
   }
 
   String _validateEmail(String str) {
@@ -108,21 +109,21 @@ class _RegisterScreenState extends State<RegisterScreen> {
   void _onFocusChange() {
     setState(() {
       if (_A.hasFocus) {
-        _emailColor = Palette().grey.withOpacity(0.7);
-        _usernameColor = Palette().grey;
-        _pwdColor = Palette().grey;
+        _emailColor = Palette().colorSecondary.withOpacity(0.7);
+        _usernameColor = Palette().colorSecondary;
+        _pwdColor = Palette().colorSecondary;
       } else if (_B.hasFocus) {
-        _usernameColor = Palette().grey.withOpacity(0.7);
-        _pwdColor = Palette().grey;
-        _emailColor = Palette().grey;
+        _usernameColor = Palette().colorSecondary.withOpacity(0.7);
+        _pwdColor = Palette().colorSecondary;
+        _emailColor = Palette().colorSecondary;
       } else if (_C.hasFocus) {
-        _pwdColor = Palette().grey.withOpacity(0.7);
-        _usernameColor = Palette().grey;
-        _emailColor = Palette().grey;
+        _pwdColor = Palette().colorSecondary.withOpacity(0.7);
+        _usernameColor = Palette().colorSecondary;
+        _emailColor = Palette().colorSecondary;
       } else {
-        _usernameColor = Palette().grey;
-        _pwdColor = Palette().grey;
-        _emailColor = Palette().grey;
+        _usernameColor = Palette().colorSecondary;
+        _pwdColor = Palette().colorSecondary;
+        _emailColor = Palette().colorSecondary;
       }
     });
   }
@@ -174,7 +175,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
   }
 
   Future<bool> _onBackPressed(BuildContext context) {
-    UiOverlayStyle(Palette().grey, Brightness.dark);
+    UiOverlayStyle()
+        .UiOverlayStyleBoth(Palette().colorSecondary, Brightness.dark);
 
     return Navigator.popAndPushNamed(context, RegisterScreen.id);
   }
@@ -204,7 +206,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       onWillPop: () => _onBackPressed(context),
       child: Scaffold(
         resizeToAvoidBottomInset: false,
-        backgroundColor: Palette().darkGrey,
+        backgroundColor: Palette().colorPrimary,
         body: GestureDetector(
           onTap: () {
             WidgetsBinding.instance.focusManager.primaryFocus?.unfocus();
@@ -213,7 +215,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
             key: _formKey,
             child: Container(
               width: MediaQuery.of(context).size.width,
-              color: Palette().darkGrey,
+              color: Palette().colorPrimary,
               child: SafeArea(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
@@ -224,7 +226,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       style: TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.bold,
-                        color: Palette().white.withOpacity(0.8),
+                        color: Palette().colorQuaternary.withOpacity(0.8),
                       ),
                     ),
                     SizedBox(
@@ -237,7 +239,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       validate: _validateEmail,
                       onChanged: _onChangeEmail,
                       bgColor: _emailColor,
-                      onEnabledbgColor: Palette().grey.withOpacity(0.9),
+                      onEnabledbgColor:
+                          Palette().colorSecondary.withOpacity(0.9),
                       prefixIcon: Icons.alternate_email,
                       showError: _showErrorForEmail,
                       inputType: TextInputType.emailAddress,
@@ -252,7 +255,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       validate: _validateUsername,
                       onChanged: _onChangeUsername,
                       bgColor: _usernameColor,
-                      onEnabledbgColor: Palette().grey.withOpacity(0.9),
+                      onEnabledbgColor:
+                          Palette().colorSecondary.withOpacity(0.9),
                       prefixIcon: Icons.person,
                       showError: _showErrorForUsername,
                     ),
@@ -266,7 +270,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       validate: _validatePassword,
                       onChanged: _onChangePassword,
                       bgColor: _pwdColor,
-                      onEnabledbgColor: Palette().grey.withOpacity(0.9),
+                      onEnabledbgColor:
+                          Palette().colorSecondary.withOpacity(0.9),
                       prefixIcon: Icons.lock_open,
                       showError: _showErrorForPassword,
                       isObscure: true,
@@ -276,7 +281,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     ),
                     CustomButton(
                       text: t.registerScreen.register,
-                      buttonColor: Palette().white,
+                      buttonColor: Palette().colorQuaternary,
                       onPressed: () {
                         _register(context);
                       },

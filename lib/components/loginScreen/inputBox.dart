@@ -46,7 +46,8 @@ class _InputBoxState extends State<InputBox> {
 
     return GestureDetector(
       onTap: () {
-        UiOverlayStyle(Palette().darkGrey, Brightness.light);
+        UiOverlayStyle()
+            .UiOverlayStyleBoth(Palette().colorPrimary, Brightness.light);
       },
       child: Container(
         width: 350,
@@ -60,16 +61,16 @@ class _InputBoxState extends State<InputBox> {
           focusNode: widget.focusNode,
           style: TextStyle(
             letterSpacing: 2,
-            color: Palette().white,
+            color: Palette().colorQuaternary,
           ),
           decoration: InputDecoration(
             prefixIcon: Icon(
               widget.prefixIcon,
-              color: Palette().white.withAlpha(100),
+              color: Palette().colorQuaternary.withAlpha(100),
             ),
             labelText: widget.labelText,
             labelStyle: TextStyle(
-              color: Palette().white,
+              color: Palette().colorQuaternary,
               fontSize: 12,
               fontWeight: FontWeight.bold,
             ), // widget.labelText,
@@ -80,7 +81,7 @@ class _InputBoxState extends State<InputBox> {
               horizontal: 10,
             ),
             prefixStyle: TextStyle(
-              color: Palette().white.withOpacity(0.8),
+              color: Palette().colorQuaternary.withOpacity(0.8),
             ),
           ),
           validator: (str) {
