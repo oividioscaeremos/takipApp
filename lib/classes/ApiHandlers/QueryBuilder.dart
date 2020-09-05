@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:core';
+import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
 import 'package:cloud_firestore/cloud_firestore.dart';
 
@@ -8,6 +9,11 @@ class QueryBuilder {
   final String EX_SHOW = "shows/";
   final String EX_SEASONS = "seasons/";
   final String EX_EPISODES = "episodes/";
+  final String SEARCH = "search/";
+  final String QUERY_INIT = "?query=";
+  final String PAGE = "&page=";
+  final String LIMIT = "&limit=";
+  final String SHOW = "show/";
   final Map<String, String> defaultHeaders = {
     "trakt-api-key": "",
     "content-type": "application/json",
@@ -44,8 +50,25 @@ class QueryBuilder {
     }
   }
 
+  QueryBuilder.search({String show, int page, int limit}) {
+    api_call = API_ROOT.toString() +
+        SEARCH.toString() +
+        SHOW +
+        QUERY_INIT +
+        show.toString();
+    if (page != null) {
+      api_call += PAGE + page.toString();
+    }
+    if (limit != null) {
+      api_call += LIMIT + limit.toString();
+    }
+  }
+
   Future<String> getResponse() async {
+    print("api CALL = $api_call");
     final response = await http.get(api_call, headers: defaultHeaders);
+    print("respp");
+    print(response.body);
     return response.body;
   }
 }

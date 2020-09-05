@@ -18,12 +18,22 @@ class UiOverlayStyle {
     );
   }
 
-  UiOverlayStyleOnlyBottom(Color color, Brightness brightness) {
+  UiOverlayStyleOnlyTop(Color color, Brightness brightness) {
     // dark or bright
     SystemChrome.setSystemUIOverlayStyle(
       SystemUiOverlayStyle(
         statusBarColor: color,
         statusBarIconBrightness: brightness,
+      ),
+    );
+  }
+
+  UiOverlayStyleOnlyBottom(Color color, Brightness brightness) {
+    // dark or bright
+    SystemChrome.setSystemUIOverlayStyle(
+      SystemUiOverlayStyle(
+        systemNavigationBarColor: color,
+        systemNavigationBarIconBrightness: brightness,
       ),
     );
   }
