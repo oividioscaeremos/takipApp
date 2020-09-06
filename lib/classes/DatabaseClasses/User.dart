@@ -9,6 +9,7 @@ class UserFull {
   List<String> favoriteGenres;
   int totalWatchTimeInMinutes;
   String email;
+  Map<String, List<String>> myOldShows = new Map<String, List<String>>();
   Map<String, List<String>> myShows = new Map<String, List<String>>();
   String username;
 
@@ -25,6 +26,14 @@ class UserFull {
         : null;
     totalWatchTimeInMinutes = json['totalWatchTimeInMinutes'];
     email = json['email'];
+    if (json['myOldShows'] != null) {
+      (json['myOldShows'] as Map<String, dynamic>).forEach((key, value) {
+        log("$key and $value");
+        var watchedEpisodes = List<String>.from(value);
+        log("key and value pass");
+        myShows.putIfAbsent(key, () => watchedEpisodes);
+      });
+    }
     if (json['myShows'] != null) {
       (json['myShows'] as Map<String, dynamic>).forEach((key, value) {
         var watchedEpisodes = List<String>.from(value);
@@ -39,6 +48,9 @@ class UserFull {
     data['favoriteGenres'] = this.favoriteGenres;
     data['totalWatchTimeInMinutes'] = this.totalWatchTimeInMinutes;
     data['email'] = this.email;
+    if (this.myOldShows != null) {
+      data['myShows'] = this.myShows.toString();
+    }
     if (this.myShows != null) {
       data['myShows'] = this.myShows.toString();
     }

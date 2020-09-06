@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 
 class SearchResultBox extends StatefulWidget {
   final Show show;
-  final bool isAdded;
+  bool isAdded;
   final Function updateUsersShow;
 
   SearchResultBox({
@@ -25,9 +25,6 @@ class _SearchResultBoxState extends State<SearchResultBox> {
   void initState() {
     // TODO: implement initState
     super.initState();
-
-    log("widget.show.toString()");
-    log(widget.show.toJson().toString());
   }
 
   @override
@@ -65,11 +62,16 @@ class _SearchResultBoxState extends State<SearchResultBox> {
                 right: 0,
                 child: Container(
                   child: InkWell(
-                    onTap: () => widget.updateUsersShow(
-                      context,
-                      widget.show.ids.trakt.toString(),
-                      widget.isAdded ? widget.isAdded : false,
-                    ),
+                    onTap: () {
+                      widget.updateUsersShow(
+                        context,
+                        widget.show.ids.trakt.toString(),
+                        widget.isAdded != null ? widget.isAdded : false,
+                      );
+                      setState(() {
+                        widget.isAdded = !widget.isAdded;
+                      });
+                    },
                     child: widget.isAdded
                         ? Icon(
                             Icons.check_box,
@@ -77,7 +79,7 @@ class _SearchResultBoxState extends State<SearchResultBox> {
                             color: Palette().colorQuaternary.withOpacity(0.7),
                           )
                         : Icon(
-                            Icons.add_box,
+                            Icons.check_box_outline_blank,
                             size: 25.0,
                             color: Palette().colorQuaternary.withOpacity(0.4),
                           ),

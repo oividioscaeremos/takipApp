@@ -9,7 +9,7 @@ import 'package:dizi_takip/classes/DatabaseClasses/Show.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/cupertino.dart';
 
-class InitNewShow{
+class InitNewShow {
   final String showTraktID;
   FirebaseFirestore firestore = FirebaseFirestore.instance;
 
@@ -21,19 +21,17 @@ class InitNewShow{
 
   Future<Show> initShow() async {
     Firebase.initializeApp();
-    DocumentSnapshot ds = await firestore.collection('shows').doc(this.showTraktID).get();
+    DocumentSnapshot ds =
+        await firestore.collection('shows').doc(this.showTraktID).get();
 
     if (ds.data() != null) {
-        return Show.fromJson(ds.data());
+      return Show.fromJson(ds.data());
     }
 
-    QueryBuilder queryBuilder = QueryBuilder(
-        show: this.showTraktID,
-        isExtended: true
-    );
+    QueryBuilder queryBuilder =
+        QueryBuilder(show: this.showTraktID, isExtended: true);
 
     final String showResponse = await queryBuilder.getResponse();
-
     newShow = Show.fromJson(jsonDecode(showResponse));
     queryBuilder =
         QueryBuilder(show: this.showTraktID, season: "", isExtended: true);
@@ -42,7 +40,8 @@ class InitNewShow{
     var season = jsonDecode(seasonsResponse) as List;
     newSeasons = season.map((s) => Season.fromJson(s)).toList();
     for (int i = 0; i < newSeasons.length - 1; i++) {
-      queryBuilder = QueryBuilder(show: this.showTraktID,
+      queryBuilder = QueryBuilder(
+          show: this.showTraktID,
           season: (i + 1).toString(),
           episode: "",
           isExtended: true);
@@ -54,8 +53,10 @@ class InitNewShow{
     }
     print('here');
     newShow.seasons = newSeasons;
-    firestore.collection('shows').doc(newShow.ids.trakt.toString()).set(
-        newShow.toJson());
+    firestore
+        .collection('shows')
+        .doc(newShow.ids.trakt.toString())
+        .set(newShow.toJson());
     return newShow;
   }
 }

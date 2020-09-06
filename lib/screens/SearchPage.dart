@@ -8,6 +8,7 @@ import 'package:dizi_takip/classes/DatabaseClasses/SearchResult.dart';
 import 'package:dizi_takip/classes/DatabaseClasses/Show.dart';
 import 'package:dizi_takip/classes/DatabaseClasses/User.dart';
 import 'package:dizi_takip/classes/ExceptionHandler.dart';
+import 'package:dizi_takip/classes/FirebaseCRUD.dart';
 import 'package:dizi_takip/classes/Palette.dart';
 import 'package:dizi_takip/classes/SizeConfig.dart';
 import 'package:dizi_takip/classes/UiOverlayStyle.dart';
@@ -27,6 +28,9 @@ class SearchPage extends StatefulWidget {
 }
 
 class _SearchPageState extends State<SearchPage> {
+  FirebaseFirestore fireStore = FirebaseFirestore.instance;
+  UserFull userInf;
+  List<String> userShowIDs = new List<String>();
   List<SearchResult> showsForQueryResult = new List<SearchResult>();
   FirebaseAuth firebaseAuth = FirebaseAuth.instance;
   ScrollController _scrollController;
@@ -44,6 +48,9 @@ class _SearchPageState extends State<SearchPage> {
       });
     }
 
+    /*fireStore.doc("/users/$username").get().then((docSnapShot){
+       =
+    })*/
     WidgetsBinding.instance.focusManager.primaryFocus?.unfocus();
   }
 
@@ -55,72 +62,32 @@ class _SearchPageState extends State<SearchPage> {
     Firebase.initializeApp();
 
     username = firebaseAuth.currentUser.displayName;
+
     UiOverlayStyle()
         .UiOverlayStyleOnlyTop(Palette().colorPrimary, Brightness.light);
+
+    print("after all");
   }
 
-  Future<void> _updateUsersShow(
-      BuildContext context, String showID, bool isAdded) {
-    FirebaseFirestore firebaseFirestoretore = FirebaseFirestore.instance;
-    print(username);
-    if (isAdded) {
-      // remove the show from user's "myShows" array and switch it to "myOldShows"
-      // since the user can have some of this show's episodes watched,
-      // we do not want to lose the data
-
-      firebaseFirestoretore.doc("/users/" + username).get().then((value) {
-        var user = UserFull.fromJson(value.data());
-        user.myShows.forEach((key, value) {
-          print("$key and $value");
-        });
-        log("jsonEncode(user.toJson())");
-        log(jsonEncode(user.toJson()));
-      });
-
-      firebaseFirestoretore.doc('/shows/' + showID).get().then((docSnapshot) {
-        if (!docSnapshot.exists) {
-          setState(() {
-            _showLoading = !_showLoading;
-          });
-          InitNewShow(showTraktID: showID).initShow().then((value) {
-            firebaseFirestoretore
-                .collection("users")
-                .doc(username)
-                .get()
-                .then((val) {
-              try {
-                firebaseFirestoretore.collection("users").doc(username).set({
-                  "myShows": {showID: new List<String>()}
-                }, new SetOptions(merge: true));
-
-                setState(() {
-                  _showLoading = !_showLoading;
-                });
-              } catch (e) {
-                ExceptionHandler(
-                  context: context,
-                  message: e.toString(),
-                );
-              }
-            });
-          });
-        } else {
-          setState(() {
-            _showLoading = !_showLoading;
-          });
-          firebaseFirestoretore.collection("users").doc(username).set({
-            "myShows": {showID: new List<String>()}
-          }, new SetOptions(merge: true));
-          setState(() {
-            _showLoading = !_showLoading;
-          });
-        }
-      });
-    } else {
+  void _updateUsersShow(BuildContext context, String showID, bool isAdded) {
+    FirebaseFirestore fireStore = FirebaseFirestore.instance;
+    print(isAdded);
+    if (!isAdded) {
       // first look at user's "myOldShows" to see if the user has it on there,
       // if user has the show on its "myOldShows" it indicates that
       // the user had watched this series, then stopped wathcing and now
-      // continues. So for the sake of not losing data, we have to do this control.
+      // continues. Remove from "myOldShows" and add to "myShows"
+      FirebaseCRUD firebaseCRUD = FirebaseCRUD.init(user: userInf);
+      userInf = firebaseCRUD.addShow(showID: showID);
+    } else {
+      // remove the show from user's "myShows" array and switch it to "myOldShows"
+      // since the user can have some of this show's episodes watched,
+      // we do not want to lose the data
+      FirebaseCRUD firebaseCRUD = FirebaseCRUD.init(user: userInf);
+      userInf = firebaseCRUD.removeShow(showID: showID);
+
+      userInf.myOldShows.putIfAbsent(showID, () => userInf.myShows[showID]);
+      userInf.myShows.remove(showID);
     }
   }
 
@@ -138,139 +105,153 @@ class _SearchPageState extends State<SearchPage> {
         ),
       );
     }
-    return SafeArea(
-      child: GestureDetector(
-        child: Container(
-          color: Palette().colorPrimary,
-          child: Stack(
-            children: [
-              Positioned(
-                top: 0,
-                left: 0,
-                right: 0,
-                child: CustomScrollView(
-                  shrinkWrap: true,
-                  slivers: [
-                    SliverAppBar(
-                      backgroundColor: Palette().colorSecondary.withOpacity(1),
-                      title: TextFormField(
-                        decoration: InputDecoration(
-                          prefixIcon: Icon(
-                            Icons.search,
-                            color: Palette().colorPrimary,
-                          ),
-                          hintText: t.searchScreen.searchForAShow,
-                          border: InputBorder.none,
-                          focusColor: Palette().colorQuaternary,
-                        ),
-                        onChanged: (str) {
-                          setState(() {
-                            showsForQueryResult = new List<SearchResult>();
-                            this.query = str;
-                          });
+    return FutureBuilder(
+      future: fireStore.doc("/users/$username").get(),
+      builder: (context, AsyncSnapshot<DocumentSnapshot> snapshot) {
+        if (snapshot.hasData) {
+          log("snapshot.data.data()");
+          log(snapshot.data.data().toString());
+          userInf = UserFull.fromJson(snapshot.data.data());
+          return SafeArea(
+            child: GestureDetector(
+              child: Container(
+                color: Palette().colorPrimary,
+                child: Stack(
+                  children: [
+                    Positioned(
+                      top: 0,
+                      left: 0,
+                      right: 0,
+                      child: CustomScrollView(
+                        shrinkWrap: true,
+                        slivers: [
+                          SliverAppBar(
+                            backgroundColor:
+                                Palette().colorSecondary.withOpacity(1),
+                            title: TextFormField(
+                              decoration: InputDecoration(
+                                prefixIcon: Icon(
+                                  Icons.search,
+                                  color: Palette().colorPrimary,
+                                ),
+                                hintText: t.searchScreen.searchForAShow,
+                                border: InputBorder.none,
+                                focusColor: Palette().colorQuaternary,
+                              ),
+                              onChanged: (str) {
+                                setState(() {
+                                  showsForQueryResult =
+                                      new List<SearchResult>();
+                                  this.query = str;
+                                });
+                              },
+                            ),
+                          )
+                        ],
+                      ),
+                    ),
+                    Positioned(
+                      top: 57.0,
+                      left: 0,
+                      right: 0,
+                      bottom: 0,
+                      child: FutureBuilder(
+                        future: QueryBuilder.search(
+                                show: this.query,
+                                page: 1,
+                                limit: pageMaxItemCount,
+                                fields: new List<String>.from(["title"]))
+                            .getResponse(),
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState ==
+                              ConnectionState.waiting) {
+                            if (showsForQueryResult.length == 0) {
+                              return Container(
+                                width: SizeConfig.screenWidth,
+                                height: 60,
+                                child: Center(
+                                  child: CircularProgressIndicator(),
+                                ),
+                              );
+                            }
+                          }
+                          if (snapshot.hasData) {
+                            if (snapshot.data.isNotEmpty) {
+                              List<dynamic> obj =
+                                  jsonDecode(snapshot.data.toString());
+                              showsForQueryResult = new List<SearchResult>();
+                              obj.forEach((showRes) {
+                                showsForQueryResult
+                                    .add(SearchResult.fromJson(showRes));
+                              });
+                            }
+                            return CustomScrollView(
+                              shrinkWrap: true,
+                              controller: _scrollController,
+                              slivers: [
+                                SliverList(
+                                  delegate: SliverChildBuilderDelegate(
+                                    (context, index) {
+                                      if (showsForQueryResult.length == 0) {
+                                        return Container(
+                                          height: SizeConfig.screenHeight - 56,
+                                          child: Center(
+                                            child: Text(
+                                              t.searchScreen.noShowFound,
+                                              style: TextStyle(
+                                                color: Palette()
+                                                    .colorQuaternary
+                                                    .withOpacity(.7),
+                                              ),
+                                            ),
+                                          ),
+                                        );
+                                      }
+                                      if (index == showsForQueryResult.length) {
+                                        return Container(
+                                          height: 80,
+                                          width: SizeConfig.screenWidth,
+                                          child: Center(
+                                            heightFactor: 10,
+                                            child: CupertinoActivityIndicator(
+                                              animating: true,
+                                              radius: 15.0,
+                                            ),
+                                          ),
+                                        );
+                                      }
+                                      var result = showsForQueryResult[index];
+
+                                      return SearchResultBox(
+                                        updateUsersShow: _updateUsersShow,
+                                        show: result.show,
+                                        isAdded: userInf.myShows.containsKey(
+                                                result.show.ids.trakt
+                                                    .toString())
+                                            ? true
+                                            : false,
+                                      );
+                                    },
+                                    childCount: showsForQueryResult.length + 1,
+                                  ),
+                                )
+                              ],
+                            );
+                          }
+                          return Center(
+                            child: CircularProgressIndicator(),
+                          );
                         },
                       ),
                     )
                   ],
                 ),
               ),
-              Positioned(
-                top: 57.0,
-                left: 0,
-                right: 0,
-                bottom: 0,
-                child: FutureBuilder(
-                  future: QueryBuilder.search(
-                      show: this.query,
-                      page: 1,
-                      limit: pageMaxItemCount,
-                      fields: new List<String>.from(["title"])).getResponse(),
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      if (showsForQueryResult.length == 0) {
-                        return Container(
-                          width: SizeConfig.screenWidth,
-                          height: 60,
-                          child: Center(
-                            child: CircularProgressIndicator(),
-                          ),
-                        );
-                      }
-                    }
-                    if (snapshot.hasData) {
-                      if (snapshot.data.isNotEmpty) {
-                        List<dynamic> obj =
-                            jsonDecode(snapshot.data.toString());
-                        showsForQueryResult = new List<SearchResult>();
-                        obj.forEach((showRes) {
-                          showsForQueryResult
-                              .add(SearchResult.fromJson(showRes));
-                        });
-                      }
-                      return CustomScrollView(
-                        shrinkWrap: true,
-                        controller: _scrollController,
-                        slivers: [
-                          SliverList(
-                            delegate: SliverChildBuilderDelegate(
-                              (context, index) {
-                                if (showsForQueryResult.length == 0) {
-                                  return Container(
-                                    height: SizeConfig.screenHeight - 56,
-                                    child: Center(
-                                      child: Text(
-                                        t.searchScreen.noShowFound,
-                                        style: TextStyle(
-                                          color: Palette()
-                                              .colorQuaternary
-                                              .withOpacity(.7),
-                                        ),
-                                      ),
-                                    ),
-                                  );
-                                }
-                                if (index == showsForQueryResult.length) {
-                                  return Container(
-                                    height: 80,
-                                    width: SizeConfig.screenWidth,
-                                    child: Center(
-                                      heightFactor: 10,
-                                      child: CupertinoActivityIndicator(
-                                        animating: true,
-                                        radius: 15.0,
-                                      ),
-                                    ),
-                                  );
-                                }
-                                var result = showsForQueryResult[index];
-                                if (index % 2 == 0) {
-                                  return SearchResultBox(
-                                    updateUsersShow: _updateUsersShow,
-                                    show: result.show,
-                                    isAdded: true,
-                                  );
-                                }
-                                return SearchResultBox(
-                                  updateUsersShow: _updateUsersShow,
-                                  show: result.show,
-                                );
-                              },
-                              childCount: showsForQueryResult.length + 1,
-                            ),
-                          )
-                        ],
-                      );
-                    }
-                    return Center(
-                      child: CircularProgressIndicator(),
-                    );
-                  },
-                ),
-              )
-            ],
-          ),
-        ),
-      ),
+            ),
+          );
+        }
+        return CircularProgressIndicator();
+      },
     );
   }
 }

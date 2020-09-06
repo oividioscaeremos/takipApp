@@ -34,14 +34,14 @@ class QueryBuilder {
     }
     if (this.season != null) {
       if (this.season == "") {
-        api_call += EX_SEASONS + "/";
+        api_call += EX_SEASONS;
       } else {
         api_call += EX_SEASONS + this.season + "/";
       }
     }
     if (this.episode != null) {
       if (this.episode == "") {
-        api_call += EX_EPISODES + "/";
+        api_call += EX_EPISODES;
       } else {
         api_call += EX_EPISODES + this.episode + "/";
       }
@@ -68,7 +68,6 @@ class QueryBuilder {
   }
 
   Future<String> getResponse() async {
-    print("Query is = ${api_call}");
     final response = await http.get(api_call, headers: defaultHeaders);
     return response.body;
   }
