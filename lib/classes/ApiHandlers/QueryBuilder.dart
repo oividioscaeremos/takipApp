@@ -16,7 +16,8 @@ class QueryBuilder {
   final String LIMIT = "&limit=";
   final String SHOW = "show/";
   final Map<String, String> defaultHeaders = {
-    "trakt-api-key": "",
+    "trakt-api-key":
+        "dc0c8f69daaf58412cc4cd72801837609ab166ad03b973ba132ea310741b08cc",
     "content-type": "application/json",
     "trakt-api-version": "2"
   };

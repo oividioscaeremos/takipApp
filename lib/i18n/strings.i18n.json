@@ -44,5 +44,9 @@
   "searchScreen": {
     "searchForAShow": "Ara",
     "noShowFound": "Gösterilecek sonuç bulunamadı."
+  },
+  "myShowsScreen": {
+    "sureToRemoveHeader": "Emin Misin?",
+    "sureToRemove": "Bu diziyi dizilerinizden kaldırmak istediğinize emin misiniz?"
   }
 }

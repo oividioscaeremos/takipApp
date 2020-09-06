@@ -3,7 +3,7 @@
     "error": "ERROR",
     "warning": "WARNING",
     "ok": "OK",
-    "close": "CLOSE",
+    "close": "DISMISS",
     "yes": "YES",
     "NO": "NO",
     "and": "and",
@@ -44,5 +44,9 @@
   "searchScreen": {
     "searchForAShow": "Search",
     "noShowFound": "Nothing to show."
+  },
+  "myShowsScreen": {
+    "sureToRemoveHeader": "Are you sure?",
+    "sureToRemove": "Are you sure you want to remove this show from your show list?"
   }
 }

@@ -74,6 +74,10 @@ class Show {
     if (json['seasons'] != null) {
       seasons = new List<Season>();
       json['seasons'].forEach((v) {
+        if (v.runtimeType.toString() == "DocumentReference") {
+          log("qs.data().toString()------------------------------------------------------------------");
+          log(v.toString());
+        }
         seasons.add(new Season.fromJson(v));
       });
     }

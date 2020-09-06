@@ -11,6 +11,7 @@ class UserFull {
   String email;
   Map<String, List<String>> myOldShows = new Map<String, List<String>>();
   Map<String, List<String>> myShows = new Map<String, List<String>>();
+  Map<String, String> watchNext = new Map<String, String>();
   String username;
 
   UserFull(
@@ -28,16 +29,19 @@ class UserFull {
     email = json['email'];
     if (json['myOldShows'] != null) {
       (json['myOldShows'] as Map<String, dynamic>).forEach((key, value) {
-        log("$key and $value");
         var watchedEpisodes = List<String>.from(value);
-        log("key and value pass");
-        myShows.putIfAbsent(key, () => watchedEpisodes);
+        myOldShows.putIfAbsent(key, () => watchedEpisodes);
       });
     }
     if (json['myShows'] != null) {
       (json['myShows'] as Map<String, dynamic>).forEach((key, value) {
         var watchedEpisodes = List<String>.from(value);
         myShows.putIfAbsent(key, () => watchedEpisodes);
+      });
+    }
+    if (json['watchNext'] != null) {
+      (json['watchNext'] as Map<String, dynamic>).forEach((key, value) {
+        watchNext.putIfAbsent(key, () => value);
       });
     }
     username = json['username'];
@@ -49,36 +53,15 @@ class UserFull {
     data['totalWatchTimeInMinutes'] = this.totalWatchTimeInMinutes;
     data['email'] = this.email;
     if (this.myOldShows != null) {
-      data['myShows'] = this.myShows.toString();
+      data['myOldShows'] = this.myOldShows.toString();
     }
     if (this.myShows != null) {
       data['myShows'] = this.myShows.toString();
     }
-    data['username'] = this.username;
-    return data;
-  }
-}
-
-class IndividualShow {
-  List<int> individualShow;
-
-  IndividualShow({this.individualShow});
-
-  IndividualShow.fromJson(Map<String, dynamic> json) {
-    log("json['myShows']hulo");
-    log(json['myShows']);
-    individualShow =
-        json['myShows'] != null ? json['myShows'].cast<int>() : null;
-  }
-
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    if (this.individualShow != null) {
-      Map<String, dynamic> myShows = jsonDecode(data['myShows']);
-      log("jsonEncode(myShows)");
-      log(jsonEncode(myShows));
-      //data['mahmut'] = this.individualShow;
+    if (this.watchNext != null) {
+      data['watchNext'] = this.watchNext.toString();
     }
+    data['username'] = this.username;
     return data;
   }
 }

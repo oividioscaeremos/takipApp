@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:dizi_takip/classes/ApiHandlers/InitNewShow.dart';
 import 'package:dizi_takip/classes/DatabaseClasses/Show.dart';
 import 'package:dizi_takip/classes/DatabaseClasses/User.dart';
 import 'package:flutter/cupertino.dart';
@@ -21,6 +22,7 @@ class FirebaseCRUD {
       });
     }
     if (_isInOldList) {
+      print("here motha");
       _fireStore.collection("users").doc(_user.username).update({
         "myOldShows.$showID": FieldValue.delete(),
         "myShows.$showID": _user.myOldShows[showID]
@@ -28,12 +30,14 @@ class FirebaseCRUD {
       _user.myShows.putIfAbsent(showID, () => _user.myOldShows[showID]);
       _user.myOldShows.remove(showID);
     } else {
-      _fireStore
-          .collection("users")
-          .doc(_user.username)
-          .update({"myShows.$showID": new List<String>()});
-
-      _user.myShows.putIfAbsent(showID, () => new List<String>(0));
+      print("im right hre");
+      InitNewShow(showTraktID: showID).initShow().then((value) {
+        _fireStore.collection("users").doc(_user.username).update({
+          "myShows.$showID": new List<String>(),
+          "watchNext.$showID": "Season 1 Episode 1"
+        });
+        _user.myShows.putIfAbsent(showID, () => new List<String>(0));
+      });
     }
     return _user;
   }

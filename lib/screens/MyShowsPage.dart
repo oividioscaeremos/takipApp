@@ -1,8 +1,20 @@
+import 'dart:convert';
+import 'dart:developer';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:dizi_takip/classes/DatabaseClasses/Episode.dart';
+import 'package:dizi_takip/classes/DatabaseClasses/InternalQueries.dart';
+import 'package:dizi_takip/classes/DatabaseClasses/Show.dart';
+import 'package:dizi_takip/classes/DatabaseClasses/User.dart';
+import 'package:dizi_takip/classes/FirebaseCRUD.dart';
 import 'package:dizi_takip/classes/Palette.dart';
 import 'package:dizi_takip/classes/SizeConfig.dart';
 import 'package:dizi_takip/classes/UiOverlayStyle.dart';
 import 'package:dizi_takip/components/mainComponents/EmptyAppBar.dart';
 import 'package:dizi_takip/components/mainComponents/ShowDetailTapHeader.dart';
+import 'package:dizi_takip/components/myShowsScreen/EpisodeShowBox.dart';
+import 'package:dizi_takip/i18n/strings.g.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
@@ -16,6 +28,10 @@ class MyShowsPage extends StatefulWidget {
 
 class _MyShowsPageState extends State<MyShowsPage> {
   final items = List<String>.generate(20, (i) => "Item ${i + 1}");
+  FirebaseFirestore _fireStore = FirebaseFirestore.instance;
+  UserFull _userFull;
+  String _username = FirebaseAuth.instance.currentUser.displayName;
+  List<Show> _userShowList = new List<Show>();
   bool _showScrollableSheet = false;
   final double initialSize = 0.0;
 
@@ -28,6 +44,130 @@ class _MyShowsPageState extends State<MyShowsPage> {
         .UiOverlayStyleOnlyTop(Palette().colorPrimary, Brightness.light);
   }
 
+  Future<bool> _onShowDismiss(
+      BuildContext ctx, DismissDirection direction, Show show) {
+    log("im right here--------------------------------------------------------------------");
+    if (direction == DismissDirection.endToStart) {
+      // user removes the show
+      showGeneralDialog(
+          barrierColor: Colors.black.withOpacity(0.5),
+          barrierDismissible: false,
+          context: ctx,
+          transitionDuration: Duration(milliseconds: 500),
+          pageBuilder: (context, animation1, animation2) {},
+          transitionBuilder: (ctx, anim1, anim2, child) {
+            final curvedValue =
+                Curves.linearToEaseOut.transform(anim1.value) - 1;
+            return Transform(
+              transform: Matrix4.translationValues(0.0, curvedValue * 800, 0.0),
+              child: GestureDetector(
+                onTap: () {
+                  WidgetsBinding.instance.focusManager.primaryFocus?.unfocus();
+                },
+                child: Dialog(
+                  elevation: 0.0,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20.0),
+                  ),
+                  child: Container(
+                    height: SizeConfig.safeBlockVertical * 25,
+                    padding: EdgeInsets.all(
+                      20.0,
+                    ),
+                    child: Stack(
+                      children: [
+                        Positioned(
+                          top: 0,
+                          child: Text(
+                            t.myShowsScreen.sureToRemoveHeader,
+                            style: TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                        Positioned(
+                          top: SizeConfig.safeBlockVertical * 5,
+                          child: Container(
+                            width: 270,
+                            child: Text(t.myShowsScreen.sureToRemove),
+                          ),
+                        ),
+                        Positioned(
+                          bottom: 0,
+                          right: 0,
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              RaisedButton(
+                                color: Palette().colorPrimary,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(18.0),
+                                  side: BorderSide(
+                                    color: Palette().colorSecondary,
+                                  ),
+                                ),
+                                child: Text(
+                                  t.global.yes.toUpperCase(),
+                                  style: TextStyle(
+                                    color: Palette().colorQuaternary,
+                                  ),
+                                ),
+                                onPressed: () {
+                                  FirebaseCRUD.init(user: _userFull).removeShow(
+                                      showID: show.ids.trakt.toString());
+
+                                  Navigator.of(ctx, rootNavigator: true)
+                                      .pop('dialog');
+                                  return true;
+                                },
+                              ),
+                              SizedBox(
+                                width: SizeConfig.safeBlockHorizontal * 2,
+                              ),
+                              GestureDetector(
+                                onTap: () {
+                                  Navigator.of(ctx, rootNavigator: true)
+                                      .pop('dialog');
+                                  return false;
+                                },
+                                child: Container(
+                                  child: Text(
+                                    t.global.close,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            );
+          });
+    } else {
+      String episodeNum = _userFull.watchNext[show.ids.trakt.toString()];
+      if (episodeNum == "FINISHED") {
+        return Future.value(false);
+      }
+      int runtime = show.seasons[int.parse(episodeNum.split(' ')[1])]
+          .episodes[int.parse(episodeNum.split(" ")[3])].runtime;
+      String nextEpisodeSTR =
+          InternalQueries().getNextEpisode(show: show, nextSTR: episodeNum);
+      _fireStore.collection("users").doc(_username).update({
+        "watchNext.${show.ids.trakt.toString()}": nextEpisodeSTR,
+        "totalWatchTimeInMinutes": FieldValue.increment(runtime)
+      });
+
+      _userFull.watchNext[show.ids.trakt.toString()] = nextEpisodeSTR;
+
+      return Future.value(false);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     SizeConfig().init(context);
@@ -37,155 +177,98 @@ class _MyShowsPageState extends State<MyShowsPage> {
       primary: true,
       appBar: EmptyAppBar(),
       backgroundColor: Palette().colorPrimary,
-      body: CustomScrollView(
-        primary: false,
-        slivers: [
-          SliverList(
-            delegate: SliverChildBuilderDelegate(
-              (context, index) {
-                final item = items[index];
-
-                return Dismissible(
-                  key: Key(item),
-                  background: Container(
-                    color: Palette().colorTertiary,
-                    child: Icon(Icons.delete),
-                  ),
-                  secondaryBackground: Container(
-                    color: Palette().colorQuaternary,
-                  ),
-                  onDismissed: (direction) {
-                    setState(() {
-                      items.removeAt(index);
-                    });
-
-                    Scaffold.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(
-                            "${item} dismissed, direction : ${direction.toString()}"),
-                        duration: Duration(
-                          milliseconds: 600,
-                        ),
-                      ),
+      body: SafeArea(
+        child: StreamBuilder(
+          stream: _fireStore.doc("/users/$_username").snapshots(),
+          builder: (context, AsyncSnapshot<DocumentSnapshot> documentSnapshot) {
+            if (documentSnapshot.hasData) {
+              log("documentSnapshot.data.data().toString()");
+              log(jsonEncode(documentSnapshot.data.data()));
+              _userFull = UserFull.fromJson(documentSnapshot.data.data());
+              log("_userFull.toString()");
+              log(_userFull.toJson().toString());
+              return FutureBuilder(
+                future: InternalQueries()
+                    .getWatchNextListForUser(userFull: _userFull),
+                builder: (context, AsyncSnapshot<List<Show>> showList) {
+                  if (showList.connectionState == ConnectionState.waiting) {
+                    return Center(
+                      child: CircularProgressIndicator(),
                     );
-                  },
-                  child: GestureDetector(
-                    onTap: () {
-                      print('we here ${initialSize.toString()}');
-                      showMaterialModalBottomSheet(
-                          context: context,
-                          expand: true,
-                          enableDrag: true,
-                          isDismissible: true,
-                          backgroundColor: Colors.transparent,
-                          builder: (context, scrollController) {
-                            return DraggableScrollableSheet(
-                              minChildSize: 0.0,
-                              initialChildSize: 1.0,
-                              maxChildSize: 1.0,
-                              expand: true,
-                              builder: (BuildContext context,
-                                  ScrollController scrollController) {
+                  }
+
+                  if (showList.hasData) {
+                    _userShowList = showList.data;
+
+                    return CustomScrollView(
+                      shrinkWrap: true,
+                      slivers: [
+                        SliverList(
+                          delegate: SliverChildBuilderDelegate(
+                            (context, index) {
+                              var show = _userShowList[index];
+
+                              if (_userShowList.length == 0) {
                                 return Container(
-                                  height: SizeConfig.screenHeight,
-                                  child: CustomScrollView(
-                                    slivers: [
-                                      SliverPersistentHeader(
-                                        floating: true,
-                                        pinned: false,
-                                        delegate: ShowDetailTapHeader(
-                                          maxExtent: 300.0,
-                                          minExtent: 2.0,
-                                        ),
+                                  height: SizeConfig.screenHeight - 56,
+                                  child: Center(
+                                    child: Text(
+                                      t.searchScreen.noShowFound,
+                                      style: TextStyle(
+                                        color: Palette()
+                                            .colorQuaternary
+                                            .withOpacity(.7),
                                       ),
-                                      SliverList(
-                                        delegate: SliverChildBuilderDelegate(
-                                          (context, index) {
-                                            final item = items[index];
-
-                                            return Dismissible(
-                                              key: Key(item),
-                                              background: Container(
-                                                color: Palette().colorTertiary,
-                                                child: Icon(Icons.delete),
-                                              ),
-                                              secondaryBackground: Container(
-                                                color:
-                                                    Palette().colorQuaternary,
-                                              ),
-                                              onDismissed: (direction) {
-                                                setState(() {
-                                                  print("before:" +
-                                                      items.toString());
-                                                  items.removeAt(index);
-                                                  print("after:" +
-                                                      items.toString());
-                                                });
-
-                                                Scaffold.of(context)
-                                                    .showSnackBar(
-                                                  SnackBar(
-                                                    content: Text(
-                                                        "${item} dismissed, direction : ${direction.toString()}"),
-                                                    duration: Duration(
-                                                      milliseconds: 600,
-                                                    ),
-                                                  ),
-                                                );
-                                              },
-                                              child: GestureDetector(
-                                                onTap: () {
-                                                  print(
-                                                      'we here ${initialSize.toString()}');
-                                                },
-                                                child: Container(
-                                                  width: SizeConfig.screenWidth,
-                                                  height: 80,
-                                                  child: Container(
-                                                    child: Text('${item}'),
-                                                    color:
-                                                        Palette().colorPrimary,
-                                                  ),
-                                                ),
-                                              ),
-                                            );
-                                          },
-                                          childCount: items.length,
-                                          addAutomaticKeepAlives: true,
-                                        ),
-                                      ),
-                                    ],
+                                    ),
                                   ),
                                 );
-                              },
-                            );
-                          });
-                    },
-                    child: Container(
-                      color: Palette().colorTertiary,
-                      width: SizeConfig.screenWidth,
-                      padding: EdgeInsets.only(
-                        top: 4,
-                        bottom: 4,
-                        left: 8,
-                        right: 8,
-                      ),
-                      height: 80,
-                      child: Center(
-                        child: Container(
-                          child: Text('${item}'),
-                          color: Palette().colorPrimary,
-                        ),
+                              }
+                              return EpisodeShowBox(
+                                onDismissed: _onShowDismiss,
+                                show: show,
+                                watchNext: _userFull
+                                    .watchNext[show.ids.trakt.toString()],
+                              );
+                            },
+                            childCount: _userShowList.length,
+                          ),
+                        )
+                      ],
+                    );
+                  }
+                  return Center(
+                    child: Text(
+                      t.searchScreen.noShowFound,
+                      style: TextStyle(
+                        color: Palette().colorQuaternary,
                       ),
                     ),
+                  );
+                },
+              );
+              return Center(child: CircularProgressIndicator());
+              /*CustomScrollView(
+                primary: false,
+                slivers: [
+                  SliverList(
+                    delegate: SliverChildBuilderDelegate(
+                          (context, index) {
+                        final item = items[index];
+
+                        return EpisodeShowBox(show: null, fullEpisode: null)
+                      },
+                      childCount: items.length,
+                      addAutomaticKeepAlives: true,
+                    ),
                   ),
-                );
-              },
-              childCount: items.length,
-              addAutomaticKeepAlives: true,
-            ),
-          ),
-        ],
+                ],
+              );*/
+            }
+            return Center(
+              child: CircularProgressIndicator(),
+            );
+          },
+        ),
       ),
     );
   }

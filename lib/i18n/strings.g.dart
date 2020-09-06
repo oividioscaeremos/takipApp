@@ -52,6 +52,7 @@ class StringsEn extends Strings {
 	@override StringsRegisterScreenEn get registerScreen => StringsRegisterScreenEn._instance;
 	@override StringsLoginScreenEn get loginScreen => StringsLoginScreenEn._instance;
 	@override StringsSearchScreenEn get searchScreen => StringsSearchScreenEn._instance;
+	@override StringsMyShowsScreenEn get myShowsScreen => StringsMyShowsScreenEn._instance;
 }
 
 class StringsGlobalEn extends StringsGlobal {
@@ -112,8 +113,16 @@ class StringsSearchScreenEn extends StringsSearchScreen {
 	static StringsSearchScreenEn _instance = StringsSearchScreenEn();
 	static StringsSearchScreenEn get instance => _instance;
 
-	@override String get searchForAShow => 'Search for a show.';
+	@override String get searchForAShow => 'Search';
 	@override String get noShowFound => 'Nothing to show.';
+}
+
+class StringsMyShowsScreenEn extends StringsMyShowsScreen {
+	static StringsMyShowsScreenEn _instance = StringsMyShowsScreenEn();
+	static StringsMyShowsScreenEn get instance => _instance;
+
+	@override String get sureToRemoveHeader => 'Are you sure?';
+	@override String get sureToRemove => 'Are you sure you want to remove this show from your show list?';
 }
 
 class Strings {
@@ -124,6 +133,7 @@ class Strings {
 	StringsRegisterScreen get registerScreen => StringsRegisterScreen._instance;
 	StringsLoginScreen get loginScreen => StringsLoginScreen._instance;
 	StringsSearchScreen get searchScreen => StringsSearchScreen._instance;
+	StringsMyShowsScreen get myShowsScreen => StringsMyShowsScreen._instance;
 }
 
 class StringsGlobal {
@@ -184,6 +194,14 @@ class StringsSearchScreen {
 	static StringsSearchScreen _instance = StringsSearchScreen();
 	static StringsSearchScreen get instance => _instance;
 
-	String get searchForAShow => 'Dizi ara.';
+	String get searchForAShow => 'Ara';
 	String get noShowFound => 'Gösterilecek sonuç bulunamadı.';
+}
+
+class StringsMyShowsScreen {
+	static StringsMyShowsScreen _instance = StringsMyShowsScreen();
+	static StringsMyShowsScreen get instance => _instance;
+
+	String get sureToRemoveHeader => 'Emin Misin?';
+	String get sureToRemove => 'Bu diziyi dizilerinizden kaldırmak istediğinize emin misiniz?';
 }

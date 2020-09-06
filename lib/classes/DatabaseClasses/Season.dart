@@ -19,28 +19,29 @@ class Season {
 
   Season(
       {this.number,
-        this.ids,
-        this.rating,
-        this.votes,
-        this.episodeCount,
-        this.airedEpisodes,
-        this.title,
-        this.overview,
-        this.firstAired,
-        this.network,
-        this.episodes});
+      this.ids,
+      this.rating,
+      this.votes,
+      this.episodeCount,
+      this.airedEpisodes,
+      this.title,
+      this.overview,
+      this.firstAired,
+      this.network,
+      this.episodes});
 
   Season.fromJson(Map<String, dynamic> json) {
-    number = json['number'];
+    number = json['number'] != null ? json['number'] : null;
     ids = json['ids'] != null ? new Ids.fromJson(json['ids']) : null;
-    rating = json['rating'];
-    votes = json['votes'];
-    episodeCount = json['episode_count'];
-    airedEpisodes = json['aired_episodes'];
-    title = json['title'];
-    overview = json['overview'];
-    firstAired = json['first_aired'];
-    network = json['network'];
+    rating = json['rating'] != null ? json['rating'] : null;
+    votes = json['votes'] != null ? json['votes'] : null;
+    episodeCount = json['episode_count'] != null ? json['episode_count'] : null;
+    airedEpisodes =
+        json['aired_episodes'] != null ? json['aired_episodes'] : null;
+    title = json['title'] != null ? json['title'] : null;
+    overview = json['overview'] != null ? json['overview'] : null;
+    firstAired = json['first_aired'] != null ? json['first_aired'] : null;
+    network = json['network'] != null ? json['network'] : null;
     if (json['episodes'] != null) {
       episodes = new List<Episode>();
       json['episodes'].forEach((v) {
