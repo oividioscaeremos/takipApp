@@ -161,7 +161,7 @@ class _MyShowsPageState extends State<MyShowsPage> {
         "watchNext.${show.ids.trakt.toString()}": nextEpisodeSTR,
         "totalWatchTimeInMinutes": FieldValue.increment(runtime)
       });
-
+      _userFull.totalWatchTimeInMinutes += runtime;
       _userFull.watchNext[show.ids.trakt.toString()] = nextEpisodeSTR;
 
       return Future.value(false);
