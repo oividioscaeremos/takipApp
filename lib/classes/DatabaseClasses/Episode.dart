@@ -9,26 +9,22 @@ class Episode {
   String overview;
   double rating;
   int votes;
-  int commentCount;
   String firstAired;
   String updatedAt;
-  List<String> availableTranslations;
   int runtime;
 
   Episode(
       {this.season,
-        this.number,
-        this.title,
-        this.ids,
-        this.numberAbs,
-        this.overview,
-        this.rating,
-        this.votes,
-        this.commentCount,
-        this.firstAired,
-        this.updatedAt,
-        this.availableTranslations,
-        this.runtime});
+      this.number,
+      this.title,
+      this.ids,
+      this.numberAbs,
+      this.overview,
+      this.rating,
+      this.votes,
+      this.firstAired,
+      this.updatedAt,
+      this.runtime});
 
   Episode.fromJson(Map<String, dynamic> json) {
     season = json['season'];
@@ -37,12 +33,9 @@ class Episode {
     ids = json['ids'] != null ? new Ids.fromJson(json['ids']) : null;
     numberAbs = json['number_abs'];
     overview = json['overview'];
-    rating = json['rating'];
     votes = json['votes'];
-    commentCount = json['comment_count'];
     firstAired = json['first_aired'];
     updatedAt = json['updated_at'];
-    availableTranslations = json['available_translations'].cast<String>();
     runtime = json['runtime'];
   }
 
@@ -58,10 +51,8 @@ class Episode {
     data['overview'] = this.overview;
     data['rating'] = this.rating;
     data['votes'] = this.votes;
-    data['comment_count'] = this.commentCount;
     data['first_aired'] = this.firstAired;
     data['updated_at'] = this.updatedAt;
-    data['available_translations'] = this.availableTranslations;
     data['runtime'] = this.runtime;
     return data;
   }

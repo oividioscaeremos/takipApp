@@ -10,6 +10,7 @@ class QueryBuilder {
   final String EX_SEASONS = "seasons/";
   final String EX_EPISODES = "episodes/";
   final String SEARCH = "search/";
+  final String FIELDS_INIT = "&fields=";
   final String QUERY_INIT = "?query=";
   final String PAGE = "&page=";
   final String LIMIT = "&limit=";
@@ -50,25 +51,25 @@ class QueryBuilder {
     }
   }
 
-  QueryBuilder.search({String show, int page, int limit}) {
-    api_call = API_ROOT.toString() +
-        SEARCH.toString() +
-        SHOW +
-        QUERY_INIT +
-        show.toString();
+  QueryBuilder.search({String show, int page, int limit, List<String> fields}) {
+    api_call = API_ROOT.toString() + SEARCH + SHOW + QUERY_INIT + show;
     if (page != null) {
       api_call += PAGE + page.toString();
     }
     if (limit != null) {
       api_call += LIMIT + limit.toString();
     }
+    if (fields.length != 0) {
+      api_call += FIELDS_INIT;
+      fields.forEach((fieldReq) {
+        api_call += fieldReq;
+      });
+    }
   }
 
   Future<String> getResponse() async {
-    print("api CALL = $api_call");
+    print("Query is = ${api_call}");
     final response = await http.get(api_call, headers: defaultHeaders);
-    print("respp");
-    print(response.body);
     return response.body;
   }
 }

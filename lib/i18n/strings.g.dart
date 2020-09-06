@@ -51,6 +51,7 @@ class StringsEn extends Strings {
 	@override StringsGlobalEn get global => StringsGlobalEn._instance;
 	@override StringsRegisterScreenEn get registerScreen => StringsRegisterScreenEn._instance;
 	@override StringsLoginScreenEn get loginScreen => StringsLoginScreenEn._instance;
+	@override StringsSearchScreenEn get searchScreen => StringsSearchScreenEn._instance;
 }
 
 class StringsGlobalEn extends StringsGlobal {
@@ -107,6 +108,14 @@ class StringsLoginScreenEn extends StringsLoginScreen {
 	@override String get emailSentIfThereIsACorrespondingUserForEmail => 'If there\'s an account going by this e-mail address, check your inbox for a password reset mail.';
 }
 
+class StringsSearchScreenEn extends StringsSearchScreen {
+	static StringsSearchScreenEn _instance = StringsSearchScreenEn();
+	static StringsSearchScreenEn get instance => _instance;
+
+	@override String get searchForAShow => 'Search for a show.';
+	@override String get noShowFound => 'Nothing to show.';
+}
+
 class Strings {
 	static Strings _instance = Strings();
 	static Strings get instance => _instance;
@@ -114,6 +123,7 @@ class Strings {
 	StringsGlobal get global => StringsGlobal._instance;
 	StringsRegisterScreen get registerScreen => StringsRegisterScreen._instance;
 	StringsLoginScreen get loginScreen => StringsLoginScreen._instance;
+	StringsSearchScreen get searchScreen => StringsSearchScreen._instance;
 }
 
 class StringsGlobal {
@@ -168,4 +178,12 @@ class StringsLoginScreen {
 	String get popupPasswordHeader => 'Şifre Sıfırla';
 	String get sendMail => 'Şifre Sıfırla';
 	String get emailSentIfThereIsACorrespondingUserForEmail => 'Bu email adresine ait bir kullanıcı varsa kısa süre içerisinde şifre sıfırlama için mail alacaksınız.';
+}
+
+class StringsSearchScreen {
+	static StringsSearchScreen _instance = StringsSearchScreen();
+	static StringsSearchScreen get instance => _instance;
+
+	String get searchForAShow => 'Dizi ara.';
+	String get noShowFound => 'Gösterilecek sonuç bulunamadı.';
 }

@@ -40,5 +40,9 @@
     "popupPasswordHeader": "Şifre Sıfırla",
     "sendMail": "Şifre Sıfırla",
     "emailSentIfThereIsACorrespondingUserForEmail": "Bu email adresine ait bir kullanıcı varsa kısa süre içerisinde şifre sıfırlama için mail alacaksınız."
+  },
+  "searchScreen": {
+    "searchForAShow": "Ara",
+    "noShowFound": "Gösterilecek sonuç bulunamadı."
   }
 }

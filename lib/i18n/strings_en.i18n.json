@@ -40,5 +40,9 @@
     "popupPasswordHeader": "Reset Password",
     "sendMail": "Reset Password",
     "emailSentIfThereIsACorrespondingUserForEmail": "If there's an account going by this e-mail address, check your inbox for a password reset mail."
+  },
+  "searchScreen": {
+    "searchForAShow": "Search",
+    "noShowFound": "Nothing to show."
   }
 }
