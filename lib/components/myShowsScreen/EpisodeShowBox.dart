@@ -25,7 +25,21 @@ class EpisodeShowBox extends StatefulWidget {
 class _EpisodeShowBoxState extends State<EpisodeShowBox> {
   @override
   Widget build(BuildContext context) {
-    var rng = new Random();
+    var showWatchNext = "S";
+    if (widget.watchNext == "FINISHED") {
+      showWatchNext = "WATCHED ALL.";
+    } else {
+      if (widget.watchNext.split(" ")[1].length == 1) {
+        showWatchNext += "0${widget.watchNext.split(" ")[1]}";
+      } else {
+        showWatchNext += widget.watchNext.split(" ")[1];
+      }
+      if (widget.watchNext.split(" ")[3].length == 1) {
+        showWatchNext += "E0${widget.watchNext.split(" ")[3]}";
+      } else {
+        showWatchNext += "E${widget.watchNext.split(" ")[3]}";
+      }
+    }
 
     SizeConfig().init(context);
     return Container(
@@ -171,10 +185,25 @@ class _EpisodeShowBoxState extends State<EpisodeShowBox> {
             child: Center(
               child: Container(
                 width: SizeConfig.screenWidth,
+                padding: EdgeInsets.only(left: 15),
                 child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(widget.show.title.toUpperCase()),
-                    Text(widget.watchNext == null ? "" : widget.watchNext),
+                    Text(
+                      widget.show.title.toUpperCase(),
+                      style: TextStyle(
+                        color: Palette().colorQuaternary,
+                        fontWeight: FontWeight.w400,
+                      ),
+                    ),
+                    Text(
+                      widget.watchNext == "FINISHED" ? "ENDED" : showWatchNext,
+                      style: TextStyle(
+                        color: Palette().colorQuaternary.withOpacity(.7),
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                   ],
                 ),
                 color: Palette().colorSecondary,
