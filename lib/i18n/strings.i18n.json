@@ -46,6 +46,8 @@
     "noShowFound": "Gösterilecek sonuç bulunamadı."
   },
   "myShowsScreen": {
+    "season": "Sezon",
+    "episode": "Bölüm",
     "sureToRemoveHeader": "Emin Misin?",
     "sureToRemove": "Bu diziyi dizilerinizden kaldırmak istediğinize emin misiniz?"
   }

@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dizi_takip/classes/ApiHandlers/InitNewShow.dart';
+import 'package:dizi_takip/classes/DatabaseClasses/Episode.dart';
 import 'package:dizi_takip/classes/DatabaseClasses/InternalQueries.dart';
 import 'package:dizi_takip/classes/DatabaseClasses/Show.dart';
 import 'package:dizi_takip/classes/DatabaseClasses/User.dart';
@@ -54,20 +55,28 @@ class FirebaseCRUD {
   }
 
   UserFull markShowAsWatched({@required Show show}) {
-    String episodeNum = _user.watchNext[show.ids.trakt.toString()];
+    String _episodeNum = _user.watchNext[show.ids.trakt.toString()];
+    Episode _episode = show.seasons[int.parse(_episodeNum.split(' ')[1]) - 1]
+        .episodes[int.parse(_episodeNum.split(' ')[3]) - 1];
 
-    if (episodeNum == "FINISHED") {
+    if (_episodeNum == "FINISHED") {
       return _user;
     }
-    int runtime = show.seasons[int.parse(episodeNum.split(' ')[1]) - 1]
-        .episodes[int.parse(episodeNum.split(' ')[3]) - 1].runtime;
+    int runtime = show.seasons[int.parse(_episodeNum.split(' ')[1]) - 1]
+        .episodes[int.parse(_episodeNum.split(' ')[3]) - 1].runtime;
+
+    print("show.ids.trakt.toString()");
+    print(show.ids.trakt.toString());
 
     String nextEpisodeSTR =
-        InternalQueries().getNextEpisode(show: show, nextSTR: episodeNum);
+        InternalQueries().getNextEpisode(show: show, nextSTR: _episodeNum);
     _fireStore.collection("users").doc(_user.username).update({
+      "myShows.${show.ids.trakt}":
+          FieldValue.arrayUnion([_episode.ids.trakt.toString()]),
       "watchNext.${show.ids.trakt.toString()}": nextEpisodeSTR,
       "totalWatchTimeInMinutes": FieldValue.increment(runtime)
     });
+    _user.myShows[show.ids.trakt].add(_episode.ids.trakt.toString());
     _user.totalWatchTimeInMinutes += runtime;
     _user.watchNext[show.ids.trakt.toString()] = nextEpisodeSTR;
 
@@ -75,18 +84,22 @@ class FirebaseCRUD {
   }
 
   UserFull markShowAsNotWatched({@required Show show}) {
-    String episodeNum = _user.watchNext[show.ids.trakt.toString()];
-    if (episodeNum == "FINISHED") {
+    String _episodeNum = _user.watchNext[show.ids.trakt.toString()];
+    Episode _episode = show.seasons[int.parse(_episodeNum.split(' ')[1]) - 1]
+        .episodes[int.parse(_episodeNum.split(' ')[3]) - 1];
+    if (_episodeNum == "FINISHED") {
       return _user;
     }
-    int runtime = show.seasons[int.parse(episodeNum.split(' ')[1]) - 1]
-        .episodes[int.parse(episodeNum.split(" ")[3]) - 1].runtime;
+    int runtime = _episode.runtime;
     String nextEpisodeSTR =
-        InternalQueries().getNextEpisode(show: show, nextSTR: episodeNum);
+        InternalQueries().getNextEpisode(show: show, nextSTR: _episodeNum);
     _fireStore.collection("users").doc(_user.username).update({
+      "myShows.${show.ids.trakt}":
+          FieldValue.arrayRemove([_episode.ids.trakt.toString()]),
       "watchNext.${show.ids.trakt.toString()}": nextEpisodeSTR,
       "totalWatchTimeInMinutes": FieldValue.increment(runtime)
     });
+    _user.myShows[show.ids.trakt].remove(_episode.ids.trakt.toString());
     _user.totalWatchTimeInMinutes += runtime;
     _user.watchNext[show.ids.trakt.toString()] = nextEpisodeSTR;
 

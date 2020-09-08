@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'dart:developer';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dizi_takip/classes/DatabaseClasses/Episode.dart';
 import 'package:dizi_takip/classes/DatabaseClasses/InternalQueries.dart';
@@ -46,7 +45,6 @@ class _MyShowsPageState extends State<MyShowsPage> {
 
   Future<bool> _onShowDismiss(
       BuildContext ctx, DismissDirection direction, Show show) {
-    log("im right here--------------------------------------------------------------------");
     if (direction == DismissDirection.endToStart) {
       // user removes the show
       showGeneralDialog(
@@ -153,16 +151,8 @@ class _MyShowsPageState extends State<MyShowsPage> {
       if (episodeNum == "FINISHED") {
         return Future.value(false);
       }
-      int runtime = show.seasons[int.parse(episodeNum.split(' ')[1])]
-          .episodes[int.parse(episodeNum.split(" ")[3])].runtime;
-      String nextEpisodeSTR =
-          InternalQueries().getNextEpisode(show: show, nextSTR: episodeNum);
-      _fireStore.collection("users").doc(_username).update({
-        "watchNext.${show.ids.trakt.toString()}": nextEpisodeSTR,
-        "totalWatchTimeInMinutes": FieldValue.increment(runtime)
-      });
-      _userFull.totalWatchTimeInMinutes += runtime;
-      _userFull.watchNext[show.ids.trakt.toString()] = nextEpisodeSTR;
+
+      FirebaseCRUD.init(user: _userFull).markShowAsWatched(show: show);
 
       return Future.value(false);
     }
@@ -182,11 +172,8 @@ class _MyShowsPageState extends State<MyShowsPage> {
           stream: _fireStore.doc("/users/$_username").snapshots(),
           builder: (context, AsyncSnapshot<DocumentSnapshot> documentSnapshot) {
             if (documentSnapshot.hasData) {
-              log("documentSnapshot.data.data().toString()");
-              log(jsonEncode(documentSnapshot.data.data()));
               _userFull = UserFull.fromJson(documentSnapshot.data.data());
-              log("_userFull.toString()");
-              log(_userFull.toJson().toString());
+
               return FutureBuilder(
                 future: InternalQueries()
                     .getWatchNextListForUser(userFull: _userFull),
@@ -198,10 +185,12 @@ class _MyShowsPageState extends State<MyShowsPage> {
                   }
 
                   if (showList.hasData) {
+                    showList.data.sort((Show a, Show b) {
+                      return a.title.compareTo(b.title) < 0 ? 0 : 1;
+                    });
                     _userShowList = showList.data;
 
                     return CustomScrollView(
-                      shrinkWrap: true,
                       slivers: [
                         SliverList(
                           delegate: SliverChildBuilderDelegate(

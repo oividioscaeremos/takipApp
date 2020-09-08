@@ -46,6 +46,8 @@
     "noShowFound": "Nothing to show."
   },
   "myShowsScreen": {
+    "season": "Season",
+    "episode": "Episode",
     "sureToRemoveHeader": "Are you sure?",
     "sureToRemove": "Are you sure you want to remove this show from your show list?"
   }

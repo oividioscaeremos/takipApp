@@ -1,22 +1,27 @@
 import 'dart:math';
 
 import 'package:dizi_takip/classes/DatabaseClasses/Episode.dart';
+import 'package:dizi_takip/classes/DatabaseClasses/Season.dart';
 import 'package:dizi_takip/classes/DatabaseClasses/Show.dart';
+import 'package:dizi_takip/classes/DatabaseClasses/User.dart';
 import 'package:dizi_takip/classes/Palette.dart';
 import 'package:dizi_takip/classes/SizeConfig.dart';
+import 'package:dizi_takip/components/mainComponents/ExpandableListView.dart';
 import 'package:dizi_takip/components/mainComponents/ShowDetailTapHeader.dart';
 import 'package:flutter/material.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
 class EpisodeShowBox extends StatefulWidget {
   Show show;
+  UserFull userFull;
   String watchNext;
   Future<bool> Function(BuildContext, DismissDirection, Show) onDismissed;
 
   EpisodeShowBox(
       {@required this.show,
       @required this.watchNext,
-      @required this.onDismissed});
+      @required this.onDismissed,
+      @required this.userFull});
 
   @override
   _EpisodeShowBoxState createState() => _EpisodeShowBoxState();
@@ -25,7 +30,21 @@ class EpisodeShowBox extends StatefulWidget {
 class _EpisodeShowBoxState extends State<EpisodeShowBox> {
   @override
   Widget build(BuildContext context) {
-    var rng = new Random();
+    var showWatchNext = "S";
+    if (widget.watchNext == "FINISHED") {
+      showWatchNext = "WATCHED ALL.";
+    } else {
+      if (widget.watchNext.split(" ")[1].length == 1) {
+        showWatchNext += "0${widget.watchNext.split(" ")[1]}";
+      } else {
+        showWatchNext += widget.watchNext.split(" ")[1];
+      }
+      if (widget.watchNext.split(" ")[3].length == 1) {
+        showWatchNext += "E0${widget.watchNext.split(" ")[3]}";
+      } else {
+        showWatchNext += "E${widget.watchNext.split(" ")[3]}";
+      }
+    }
 
     SizeConfig().init(context);
     return Container(
@@ -91,13 +110,15 @@ class _EpisodeShowBoxState extends State<EpisodeShowBox> {
                     builder: (BuildContext context,
                         ScrollController scrollController) {
                       return Container(
+                        color: Palette().colorPrimary,
                         height: SizeConfig.screenHeight,
                         child: CustomScrollView(
                           slivers: [
                             SliverPersistentHeader(
                               floating: true,
-                              pinned: false,
+                              pinned: true,
                               delegate: ShowDetailTapHeader(
+                                show: widget.show,
                                 maxExtent: 300.0,
                                 minExtent: 2.0,
                               ),
@@ -105,50 +126,14 @@ class _EpisodeShowBoxState extends State<EpisodeShowBox> {
                             SliverList(
                               delegate: SliverChildBuilderDelegate(
                                 (context, index) {
-                                  var rng = new Random();
+                                  Season _season = widget.show.seasons[index];
 
-                                  return Dismissible(
-                                    key: Key(rng.nextInt(100000).toString()),
-                                    background: Container(
-                                      color: Palette().colorTertiary,
-                                      child: Icon(Icons.delete),
-                                    ),
-                                    secondaryBackground: Container(
-                                      color: Palette().colorQuaternary,
-                                    ),
-                                    direction: DismissDirection.startToEnd,
-                                    onDismissed: (direction) {
-                                      setState(() {
-                                        /*items.removeAt(index);*/
-                                      });
-
-                                      Scaffold.of(context).showSnackBar(
-                                        SnackBar(
-                                          content: Text(
-                                              "dismissed, direction : ${direction.toString()}"),
-                                          duration: Duration(
-                                            milliseconds: 600,
-                                          ),
-                                        ),
-                                      );
-                                    },
-                                    child: GestureDetector(
-                                      onTap: () {
-                                        print('we here');
-                                      },
-                                      child: Container(
-                                        width: SizeConfig.screenWidth,
-                                        height: 80,
-                                        child: Container(
-                                          child: Text('item'),
-                                          color: Palette().colorPrimary,
-                                        ),
-                                      ),
-                                    ),
+                                  return ExpandableListView(
+                                    season: _season,
+                                    userFull: widget.userFull,
                                   );
                                 },
-                                childCount: 10,
-                                addAutomaticKeepAlives: true,
+                                childCount: widget.show.seasons.length - 1,
                               ),
                             ),
                           ],
@@ -171,10 +156,25 @@ class _EpisodeShowBoxState extends State<EpisodeShowBox> {
             child: Center(
               child: Container(
                 width: SizeConfig.screenWidth,
+                padding: EdgeInsets.only(left: 15),
                 child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(widget.show.title.toUpperCase()),
-                    Text(widget.watchNext == null ? "" : widget.watchNext),
+                    Text(
+                      widget.show.title.toUpperCase(),
+                      style: TextStyle(
+                        color: Palette().colorQuaternary,
+                        fontWeight: FontWeight.w400,
+                      ),
+                    ),
+                    Text(
+                      widget.watchNext == "FINISHED" ? "ENDED" : showWatchNext,
+                      style: TextStyle(
+                        color: Palette().colorQuaternary.withOpacity(.7),
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                   ],
                 ),
                 color: Palette().colorSecondary,

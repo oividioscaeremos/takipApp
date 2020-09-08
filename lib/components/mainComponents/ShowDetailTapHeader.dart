@@ -1,15 +1,18 @@
 import 'dart:math';
 
+import 'package:dizi_takip/classes/DatabaseClasses/Show.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 
 class ShowDetailTapHeader implements SliverPersistentHeaderDelegate {
   ShowDetailTapHeader({
     this.minExtent,
+    this.show,
     @required this.maxExtent,
   });
   final double minExtent;
   final double maxExtent;
+  final Show show;
 
   @override
   Widget build(
@@ -37,7 +40,7 @@ class ShowDetailTapHeader implements SliverPersistentHeaderDelegate {
           right: 16.0,
           bottom: 16.0,
           child: Text(
-            'Lorem ipsum',
+            show.title,
             style: TextStyle(
               fontSize: 32.0,
               color: Colors.white.withOpacity(titleOpacity(shrinkOffset)),

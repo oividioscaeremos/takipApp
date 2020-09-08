@@ -62,7 +62,7 @@ class StringsGlobalEn extends StringsGlobal {
 	@override String get error => 'ERROR';
 	@override String get warning => 'WARNING';
 	@override String get ok => 'OK';
-	@override String get close => 'CLOSE';
+	@override String get close => 'DISMISS';
 	@override String get yes => 'YES';
 	@override String get NO => 'NO';
 	@override String get and => 'and';
@@ -121,6 +121,8 @@ class StringsMyShowsScreenEn extends StringsMyShowsScreen {
 	static StringsMyShowsScreenEn _instance = StringsMyShowsScreenEn();
 	static StringsMyShowsScreenEn get instance => _instance;
 
+	@override String get season => 'Season';
+	@override String get episode => 'Episode';
 	@override String get sureToRemoveHeader => 'Are you sure?';
 	@override String get sureToRemove => 'Are you sure you want to remove this show from your show list?';
 }
@@ -202,6 +204,8 @@ class StringsMyShowsScreen {
 	static StringsMyShowsScreen _instance = StringsMyShowsScreen();
 	static StringsMyShowsScreen get instance => _instance;
 
+	String get season => 'Sezon';
+	String get episode => 'Bölüm';
 	String get sureToRemoveHeader => 'Emin Misin?';
 	String get sureToRemove => 'Bu diziyi dizilerinizden kaldırmak istediğinize emin misiniz?';
 }
