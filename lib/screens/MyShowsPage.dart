@@ -149,13 +149,12 @@ class _MyShowsPageState extends State<MyShowsPage> {
             );
           });
     } else {
-      /*String episodeNum = _userFull.watchNext[show.ids.trakt.toString()];
+      String episodeNum = _userFull.watchNext[show.ids.trakt.toString()];
       if (episodeNum == "FINISHED") {
         return Future.value(false);
       }
       int runtime = show.seasons[int.parse(episodeNum.split(' ')[1])]
           .episodes[int.parse(episodeNum.split(" ")[3])].runtime;
-
       String nextEpisodeSTR =
           InternalQueries().getNextEpisode(show: show, nextSTR: episodeNum);
       _fireStore.collection("users").doc(_username).update({
@@ -164,9 +163,6 @@ class _MyShowsPageState extends State<MyShowsPage> {
       });
       _userFull.totalWatchTimeInMinutes += runtime;
       _userFull.watchNext[show.ids.trakt.toString()] = nextEpisodeSTR;
-      _userFull =*/
-      _userFull =
-          FirebaseCRUD.init(user: _userFull).markShowAsWatched(show: show);
 
       return Future.value(false);
     }
@@ -186,12 +182,14 @@ class _MyShowsPageState extends State<MyShowsPage> {
           stream: _fireStore.doc("/users/$_username").snapshots(),
           builder: (context, AsyncSnapshot<DocumentSnapshot> documentSnapshot) {
             if (documentSnapshot.hasData) {
+              log("documentSnapshot.data.data().toString()");
+              log(jsonEncode(documentSnapshot.data.data()));
               _userFull = UserFull.fromJson(documentSnapshot.data.data());
-
-              return StreamBuilder(
-                stream: InternalQueries()
-                    .getWatchNextListForUser(userFull: _userFull)
-                    .asStream(),
+              log("_userFull.toString()");
+              log(_userFull.toJson().toString());
+              return FutureBuilder(
+                future: InternalQueries()
+                    .getWatchNextListForUser(userFull: _userFull),
                 builder: (context, AsyncSnapshot<List<Show>> showList) {
                   if (showList.connectionState == ConnectionState.waiting) {
                     return Center(

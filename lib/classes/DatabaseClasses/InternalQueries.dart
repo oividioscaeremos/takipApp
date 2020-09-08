@@ -27,7 +27,6 @@ class InternalQueries {
           if (show.seasons[i].episodes.indexOf(show.seasons[i].episodes[j]) ==
               show.seasons[i].episodes.length - 1) {
             log("moi here=============================================================================");
-            log("$i and $j");
             if (i + 1 == show.seasons.length - 1) {
               log("here>");
               return "FINISHED";
@@ -46,36 +45,29 @@ class InternalQueries {
 
   Future<List<Show>> getWatchNextListForUser(
       {@required UserFull userFull}) async {
-    int rounds = 0;
-    if (userFull.myShows.length == 0) {
-      rounds = 0;
-    } else {
-      log("rounds first $rounds and next shall be ${(userFull.myShows.length / 10).ceil()}");
-      rounds = (userFull.myShows.length / 10).ceil();
-    }
     List<Show> showListToReturn = new List<Show>();
     List<int> showIDs = new List<int>();
 
-    userFull.myShows.forEach((key, value) {
-      showIDs.add(int.parse(key));
-    });
-
-    for (int i = 0; i < rounds; i++) {
-      int maxSupportedRange = i == rounds - 1 ? showIDs.length % 10 : 10;
-
-      await _firestore
-          .collection("shows")
-          .where("ids.trakt",
-              whereIn:
-                  showIDs.getRange(i * 10, i * 10 + maxSupportedRange).toList())
-          .get()
-          .then((snapshot) {
-        snapshot.docs.forEach((queryDocSnapshot) {
-          log("snapshot for number $i");
-          showListToReturn.add(Show.fromJson(queryDocSnapshot.data()));
-        });
+    if (userFull.myShows.length > 10) {
+      for (int i = 0; i < userFull.myShows.keys.length; i++) {
+        showIDs.add(int.parse(userFull.myShows.keys.toList()[i]));
+      }
+    } else {
+      userFull.myShows.forEach((key, value) {
+        showIDs.add(int.parse(key));
       });
     }
+
+    log("what this is ${showIDs.toString()}");
+
+    QuerySnapshot snapshot = await _firestore
+        .collection("shows")
+        .where("ids.trakt", whereIn: showIDs)
+        .get();
+    snapshot.docs.forEach((queryDocSnapshot) {
+      showListToReturn.add(Show.fromJson(queryDocSnapshot.data()));
+    });
+
     return showListToReturn;
   }
 }
