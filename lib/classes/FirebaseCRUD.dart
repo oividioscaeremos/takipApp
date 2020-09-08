@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dizi_takip/classes/ApiHandlers/InitNewShow.dart';
+import 'package:dizi_takip/classes/DatabaseClasses/InternalQueries.dart';
 import 'package:dizi_takip/classes/DatabaseClasses/Show.dart';
 import 'package:dizi_takip/classes/DatabaseClasses/User.dart';
 import 'package:flutter/cupertino.dart';
@@ -49,6 +50,46 @@ class FirebaseCRUD {
     });
     _user.myOldShows.putIfAbsent(showID, () => _user.myShows[showID]);
     _user.myShows.remove(showID);
+    return _user;
+  }
+
+  UserFull markShowAsWatched({@required Show show}) {
+    String episodeNum = _user.watchNext[show.ids.trakt.toString()];
+
+    if (episodeNum == "FINISHED") {
+      return _user;
+    }
+    int runtime = show.seasons[int.parse(episodeNum.split(' ')[1]) - 1]
+        .episodes[int.parse(episodeNum.split(' ')[3]) - 1].runtime;
+
+    String nextEpisodeSTR =
+        InternalQueries().getNextEpisode(show: show, nextSTR: episodeNum);
+    _fireStore.collection("users").doc(_user.username).update({
+      "watchNext.${show.ids.trakt.toString()}": nextEpisodeSTR,
+      "totalWatchTimeInMinutes": FieldValue.increment(runtime)
+    });
+    _user.totalWatchTimeInMinutes += runtime;
+    _user.watchNext[show.ids.trakt.toString()] = nextEpisodeSTR;
+
+    return _user;
+  }
+
+  UserFull markShowAsNotWatched({@required Show show}) {
+    String episodeNum = _user.watchNext[show.ids.trakt.toString()];
+    if (episodeNum == "FINISHED") {
+      return _user;
+    }
+    int runtime = show.seasons[int.parse(episodeNum.split(' ')[1]) - 1]
+        .episodes[int.parse(episodeNum.split(" ")[3]) - 1].runtime;
+    String nextEpisodeSTR =
+        InternalQueries().getNextEpisode(show: show, nextSTR: episodeNum);
+    _fireStore.collection("users").doc(_user.username).update({
+      "watchNext.${show.ids.trakt.toString()}": nextEpisodeSTR,
+      "totalWatchTimeInMinutes": FieldValue.increment(runtime)
+    });
+    _user.totalWatchTimeInMinutes += runtime;
+    _user.watchNext[show.ids.trakt.toString()] = nextEpisodeSTR;
+
     return _user;
   }
 }
