@@ -355,7 +355,7 @@ class _LoginScreenState extends State<LoginScreen> {
           WidgetsBinding.instance.focusManager.primaryFocus?.unfocus();
         },
         child: Scaffold(
-          resizeToAvoidBottomInset: false,
+          resizeToAvoidBottomInset: true,
           backgroundColor: Palette().colorSecondary,
           body: SafeArea(
             child: Container(

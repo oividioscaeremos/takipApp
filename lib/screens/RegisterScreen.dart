@@ -207,7 +207,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     return WillPopScope(
       onWillPop: () => _onBackPressed(context),
       child: Scaffold(
-        resizeToAvoidBottomInset: false,
+        resizeToAvoidBottomInset: true,
         backgroundColor: Palette().colorPrimary,
         body: GestureDetector(
           onTap: () {

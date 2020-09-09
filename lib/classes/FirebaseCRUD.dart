@@ -100,8 +100,14 @@ class FirebaseCRUD {
     Show _show = show;
     Episode _episode = episode;
     List<int> episodes = new List<int>();
-    int _watchNextSeason = episode.season;
-    int _watchNextEpisode = episode.number;
+    int _watchNextSeason = 1;
+    int _watchNextEpisode = 1;
+
+    log("{episode.ids.trakt.toString()]} => ${episode.ids.trakt.toString()}\n{_user.myShows} => ${_user.myShows}");
+    log("before${_user.myShows[show.ids.trakt.toString()]}");
+    _user.myShows[show.ids.trakt.toString()]
+        .remove(episode.ids.trakt.toString());
+    log("after${_user.myShows[show.ids.trakt.toString()]}");
 
     _user.myShows.forEach((key, value) {
       value.forEach((element) {
@@ -112,20 +118,23 @@ class FirebaseCRUD {
       }
     });
 
-    log("shw? $_show");
-    log("season ${_show.seasons}");
-    for (int i = 1; i < _show.seasons.length; i++) {
-      log("episodes ${_show.seasons[i].episodes}");
+    for (int i = 0; i < _show.seasons.length; i++) {
       if (_show.seasons[i].episodes == null) {
         continue;
       }
-      for (int j = 1; j < _show.seasons[i].episodes.length; j++) {
+      for (int j = 0; j < _show.seasons[i].episodes.length; j++) {
         Season s = _show.seasons[i];
         Episode epi = _show.seasons[i].episodes[j];
+        log("episode ${_show.seasons[i].episodes[j].toJson().toString()}");
         if (episodes.contains(epi.ids.trakt)) {
           log("izledik biz bunu ${epi.season} and ${epi.number}");
-          _watchNextSeason = epi.season;
-          _watchNextEpisode = epi.number;
+          if (j + 1 == s.episodes.length) {
+            _watchNextSeason = epi.season + 1;
+            _watchNextEpisode = 1;
+          } else {
+            _watchNextSeason = epi.season;
+            _watchNextEpisode = epi.number + 1;
+          }
         }
       }
     }
@@ -138,7 +147,6 @@ class FirebaseCRUD {
       "totalWatchTimeInMinutes": FieldValue.increment(-runtime)
     });
 
-    _user.myShows.remove(episode.ids.trakt.toString());
     _user.totalWatchTimeInMinutes -= runtime;
     _user.watchNext[show.ids.trakt.toString()] =
         "Season $_watchNextSeason Episode $_watchNextEpisode";

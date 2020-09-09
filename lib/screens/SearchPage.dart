@@ -111,8 +111,6 @@ class _SearchPageState extends State<SearchPage> {
       stream: fireStore.doc("/users/$username").snapshots(),
       builder: (context, AsyncSnapshot<DocumentSnapshot> snapshot) {
         if (snapshot.hasData) {
-          log("snapshot.data.data()");
-          log(snapshot.data.data().toString());
           userInf = UserFull.fromJson(snapshot.data.data());
           return SafeArea(
             child: GestureDetector(
