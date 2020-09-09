@@ -13,12 +13,15 @@ import 'package:dizi_takip/components/mainComponents/EmptyAppBar.dart';
 import 'package:dizi_takip/components/mainComponents/ShowDetailTapHeader.dart';
 import 'package:dizi_takip/components/myShowsScreen/EpisodeShowBox.dart';
 import 'package:dizi_takip/i18n/strings.g.dart';
+import 'package:dizi_takip/screens/LoginScreen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
 class MyShowsPage extends StatefulWidget {
+  static String id = 'myShowsPage';
+
   MyShowsPage({Key key}) : super(key: key);
 
   @override
@@ -152,7 +155,8 @@ class _MyShowsPageState extends State<MyShowsPage> {
         return Future.value(false);
       }
 
-      FirebaseCRUD.init(user: _userFull).markShowAsWatched(show: show);
+      _userFull =
+          FirebaseCRUD.init(user: _userFull).markShowAsWatched(show: show);
 
       return Future.value(false);
     }
@@ -192,6 +196,26 @@ class _MyShowsPageState extends State<MyShowsPage> {
 
                     return CustomScrollView(
                       slivers: [
+                        SliverAppBar(
+                          backgroundColor: Colors.black26,
+                          floating: false,
+                          pinned: true,
+                          actions: [
+                            Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: GestureDetector(
+                                onTap: () {
+                                  FirebaseAuth.instance.signOut();
+                                  return Navigator.popAndPushNamed(
+                                      context, "/login_screen");
+                                },
+                                child: Icon(
+                                  Icons.close,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
                         SliverList(
                           delegate: SliverChildBuilderDelegate(
                             (context, index) {
@@ -215,6 +239,7 @@ class _MyShowsPageState extends State<MyShowsPage> {
                               return EpisodeShowBox(
                                 onDismissed: _onShowDismiss,
                                 show: show,
+                                userFull: _userFull,
                                 watchNext: _userFull
                                     .watchNext[show.ids.trakt.toString()],
                               );

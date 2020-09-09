@@ -26,13 +26,9 @@ class InternalQueries {
             show.seasons[i].episodes[j].number.toString() == episode) {
           if (show.seasons[i].episodes.indexOf(show.seasons[i].episodes[j]) ==
               show.seasons[i].episodes.length - 1) {
-            log("moi here=============================================================================");
             if (i + 1 == show.seasons.length - 1) {
-              log("here>");
               return "FINISHED";
             } else {
-              log("or here>");
-
               return "Season ${show.seasons[i + 1].episodes[0].season} Episode ${show.seasons[i + 1].episodes[0].number}";
             }
           } else {

@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dizi_takip/classes/DatabaseClasses/Episode.dart';
 import 'package:dizi_takip/classes/DatabaseClasses/Season.dart';
 import 'package:dizi_takip/classes/DatabaseClasses/Show.dart';
@@ -8,6 +9,7 @@ import 'package:dizi_takip/classes/Palette.dart';
 import 'package:dizi_takip/classes/SizeConfig.dart';
 import 'package:dizi_takip/components/mainComponents/ExpandableListView.dart';
 import 'package:dizi_takip/components/mainComponents/ShowDetailTapHeader.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
@@ -16,6 +18,7 @@ class EpisodeShowBox extends StatefulWidget {
   UserFull userFull;
   String watchNext;
   Future<bool> Function(BuildContext, DismissDirection, Show) onDismissed;
+  FirebaseFirestore firestore = FirebaseFirestore.instance;
 
   EpisodeShowBox(
       {@required this.show,
@@ -112,31 +115,50 @@ class _EpisodeShowBoxState extends State<EpisodeShowBox> {
                       return Container(
                         color: Palette().colorPrimary,
                         height: SizeConfig.screenHeight,
-                        child: CustomScrollView(
-                          slivers: [
-                            SliverPersistentHeader(
-                              floating: true,
-                              pinned: true,
-                              delegate: ShowDetailTapHeader(
-                                show: widget.show,
-                                maxExtent: 300.0,
-                                minExtent: 2.0,
-                              ),
-                            ),
-                            SliverList(
-                              delegate: SliverChildBuilderDelegate(
-                                (context, index) {
-                                  Season _season = widget.show.seasons[index];
+                        child: StreamBuilder(
+                          stream: widget.firestore
+                              .collection("users")
+                              .doc(widget.userFull.username)
+                              .snapshots(),
+                          builder: (context,
+                              AsyncSnapshot<DocumentSnapshot> snapsh) {
+                            if (snapsh.hasData) {
+                              UserFull newUserFull =
+                                  UserFull.fromJson(snapsh.data.data());
+                              print(
+                                  "snapshot changed++++asd++++++++++++++++++++++++++++++++++++++++++++++++++");
+                              return CustomScrollView(
+                                slivers: [
+                                  SliverPersistentHeader(
+                                    floating: true,
+                                    pinned: true,
+                                    delegate: ShowDetailTapHeader(
+                                      show: widget.show,
+                                      maxExtent: 300.0,
+                                      minExtent: 2.0,
+                                    ),
+                                  ),
+                                  SliverList(
+                                    delegate: SliverChildBuilderDelegate(
+                                      (context, index) {
+                                        Season _season =
+                                            widget.show.seasons[index];
 
-                                  return ExpandableListView(
-                                    season: _season,
-                                    userFull: widget.userFull,
-                                  );
-                                },
-                                childCount: widget.show.seasons.length - 1,
-                              ),
-                            ),
-                          ],
+                                        return ExpandableListView(
+                                          show: widget.show,
+                                          season: _season,
+                                          userFull: newUserFull,
+                                        );
+                                      },
+                                      childCount:
+                                          widget.show.seasons.length - 1,
+                                    ),
+                                  ),
+                                ],
+                              );
+                            }
+                            return Center(child: CircularProgressIndicator());
+                          },
                         ),
                       );
                     },

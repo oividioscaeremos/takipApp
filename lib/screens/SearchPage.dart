@@ -23,6 +23,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 class SearchPage extends StatefulWidget {
+  static String id = 'searchPage';
+
   @override
   _SearchPageState createState() => _SearchPageState();
 }
@@ -105,8 +107,8 @@ class _SearchPageState extends State<SearchPage> {
         ),
       );
     }
-    return FutureBuilder(
-      future: fireStore.doc("/users/$username").get(),
+    return StreamBuilder(
+      stream: fireStore.doc("/users/$username").snapshots(),
       builder: (context, AsyncSnapshot<DocumentSnapshot> snapshot) {
         if (snapshot.hasData) {
           log("snapshot.data.data()");

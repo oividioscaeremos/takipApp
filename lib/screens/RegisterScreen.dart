@@ -144,8 +144,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
           "username": username,
           "email": emailAddress,
           "totalWatchTimeInMinutes": 0,
+          "watchNext": {},
           "favoriteGenres": [],
-          "myShows": [],
+          "myOldShows": {},
+          "myShows": {},
         });
 
         Navigator.of(context).pop();

@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dizi_takip/classes/ApiHandlers/InitNewShow.dart';
 import 'package:dizi_takip/classes/DatabaseClasses/Episode.dart';
@@ -5,6 +7,8 @@ import 'package:dizi_takip/classes/DatabaseClasses/InternalQueries.dart';
 import 'package:dizi_takip/classes/DatabaseClasses/Show.dart';
 import 'package:dizi_takip/classes/DatabaseClasses/User.dart';
 import 'package:flutter/cupertino.dart';
+
+import 'DatabaseClasses/Season.dart';
 
 class FirebaseCRUD {
   FirebaseFirestore _fireStore = FirebaseFirestore.instance;
@@ -54,19 +58,26 @@ class FirebaseCRUD {
     return _user;
   }
 
-  UserFull markShowAsWatched({@required Show show}) {
+  UserFull markShowAsWatched({@required Show show, Episode episode}) {
     String _episodeNum = _user.watchNext[show.ids.trakt.toString()];
-    Episode _episode = show.seasons[int.parse(_episodeNum.split(' ')[1]) - 1]
-        .episodes[int.parse(_episodeNum.split(' ')[3]) - 1];
+    Episode _episode;
+    if (episode == null) {
+      _episodeNum = _user.watchNext[show.ids.trakt.toString()];
+
+      _episode = show.seasons[int.parse(_episodeNum.split(' ')[1]) - 1]
+          .episodes[int.parse(_episodeNum.split(' ')[3]) - 1];
+    } else {
+      log("im here99");
+      log("Season ${episode.season} Episode ${episode.number}");
+      _episode = episode;
+      _episodeNum = "Season ${episode.season} Episode ${episode.number}";
+    }
 
     if (_episodeNum == "FINISHED") {
       return _user;
     }
     int runtime = show.seasons[int.parse(_episodeNum.split(' ')[1]) - 1]
         .episodes[int.parse(_episodeNum.split(' ')[3]) - 1].runtime;
-
-    print("show.ids.trakt.toString()");
-    print(show.ids.trakt.toString());
 
     String nextEpisodeSTR =
         InternalQueries().getNextEpisode(show: show, nextSTR: _episodeNum);
@@ -76,32 +87,61 @@ class FirebaseCRUD {
       "watchNext.${show.ids.trakt.toString()}": nextEpisodeSTR,
       "totalWatchTimeInMinutes": FieldValue.increment(runtime)
     });
-    _user.myShows[show.ids.trakt].add(_episode.ids.trakt.toString());
+    _user.myShows[show.ids.trakt.toString()].add(_episode.ids.trakt.toString());
     _user.totalWatchTimeInMinutes += runtime;
     _user.watchNext[show.ids.trakt.toString()] = nextEpisodeSTR;
 
     return _user;
   }
 
-  UserFull markShowAsNotWatched({@required Show show}) {
-    String _episodeNum = _user.watchNext[show.ids.trakt.toString()];
-    Episode _episode = show.seasons[int.parse(_episodeNum.split(' ')[1]) - 1]
-        .episodes[int.parse(_episodeNum.split(' ')[3]) - 1];
-    if (_episodeNum == "FINISHED") {
-      return _user;
+  UserFull markEpisodeAsNotWatched(
+      {@required Episode episode, @required Show show}) {
+    String showID;
+    Show _show = show;
+    Episode _episode = episode;
+    List<int> episodes = new List<int>();
+    int _watchNextSeason = episode.season;
+    int _watchNextEpisode = episode.number;
+
+    _user.myShows.forEach((key, value) {
+      value.forEach((element) {
+        episodes.add(int.parse(element.toString()));
+      });
+      if (value.contains(episode.ids.trakt)) {
+        showID = key;
+      }
+    });
+
+    log("shw? $_show");
+    log("season ${_show.seasons}");
+    for (int i = 1; i < _show.seasons.length; i++) {
+      log("episodes ${_show.seasons[i].episodes}");
+      if (_show.seasons[i].episodes == null) {
+        continue;
+      }
+      for (int j = 1; j < _show.seasons[i].episodes.length; j++) {
+        Season s = _show.seasons[i];
+        Episode epi = _show.seasons[i].episodes[j];
+        if (episodes.contains(epi.ids.trakt)) {
+          log("izledik biz bunu ${epi.season} and ${epi.number}");
+          _watchNextSeason = epi.season;
+          _watchNextEpisode = epi.number;
+        }
+      }
     }
-    int runtime = _episode.runtime;
-    String nextEpisodeSTR =
-        InternalQueries().getNextEpisode(show: show, nextSTR: _episodeNum);
+    int runtime = episode.runtime;
     _fireStore.collection("users").doc(_user.username).update({
       "myShows.${show.ids.trakt}":
-          FieldValue.arrayRemove([_episode.ids.trakt.toString()]),
-      "watchNext.${show.ids.trakt.toString()}": nextEpisodeSTR,
-      "totalWatchTimeInMinutes": FieldValue.increment(runtime)
+          FieldValue.arrayRemove([episode.ids.trakt.toString()]),
+      "watchNext.${show.ids.trakt.toString()}":
+          "Season $_watchNextSeason Episode $_watchNextEpisode",
+      "totalWatchTimeInMinutes": FieldValue.increment(-runtime)
     });
-    _user.myShows[show.ids.trakt].remove(_episode.ids.trakt.toString());
-    _user.totalWatchTimeInMinutes += runtime;
-    _user.watchNext[show.ids.trakt.toString()] = nextEpisodeSTR;
+
+    _user.myShows.remove(episode.ids.trakt.toString());
+    _user.totalWatchTimeInMinutes -= runtime;
+    _user.watchNext[show.ids.trakt.toString()] =
+        "Season $_watchNextSeason Episode $_watchNextEpisode";
 
     return _user;
   }
