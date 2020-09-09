@@ -8,6 +8,7 @@ import 'package:persistent_bottom_nav_bar/persistent-tab-view.dart';
 class HomePage extends StatefulWidget {
   static String id = "HomePage";
   final String username;
+  bool hideNavBar = false;
 
   HomePage({this.username});
 
@@ -18,6 +19,12 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   PersistentTabController _controller =
       PersistentTabController(initialIndex: 0);
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -58,7 +65,7 @@ class _HomePageState extends State<HomePage> {
       decoration: NavBarDecoration(
         colorBehindNavBar: Palette().colorPrimary,
       ),
-      popAllScreensOnTapOfSelectedTab: true,
+      popAllScreensOnTapOfSelectedTab: false,
       itemAnimationProperties: ItemAnimationProperties(
         duration: Duration(milliseconds: 200),
         curve: Curves.ease,

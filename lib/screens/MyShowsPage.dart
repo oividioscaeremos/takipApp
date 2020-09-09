@@ -163,8 +163,8 @@ class _MyShowsPageState extends State<MyShowsPage> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    SizeConfig().init(context);
+  Widget build(BuildContext buildContext) {
+    SizeConfig().init(buildContext);
 
     return Scaffold(
       extendBodyBehindAppBar: true,
@@ -174,7 +174,8 @@ class _MyShowsPageState extends State<MyShowsPage> {
       body: SafeArea(
         child: StreamBuilder(
           stream: _fireStore.doc("/users/$_username").snapshots(),
-          builder: (context, AsyncSnapshot<DocumentSnapshot> documentSnapshot) {
+          builder: (streamBuilderContext,
+              AsyncSnapshot<DocumentSnapshot> documentSnapshot) {
             if (documentSnapshot.hasData) {
               _userFull = UserFull.fromJson(documentSnapshot.data.data());
 
@@ -189,9 +190,6 @@ class _MyShowsPageState extends State<MyShowsPage> {
                   }
 
                   if (showList.hasData) {
-                    showList.data.sort((Show a, Show b) {
-                      return a.title.compareTo(b.title) < 0 ? 0 : 1;
-                    });
                     _userShowList = showList.data;
 
                     return CustomScrollView(
@@ -206,6 +204,7 @@ class _MyShowsPageState extends State<MyShowsPage> {
                               child: GestureDetector(
                                 onTap: () {
                                   FirebaseAuth.instance.signOut();
+
                                   return Navigator.popAndPushNamed(
                                       context, "/login_screen");
                                 },
@@ -220,6 +219,8 @@ class _MyShowsPageState extends State<MyShowsPage> {
                           delegate: SliverChildBuilderDelegate(
                             (context, index) {
                               var show = _userShowList[index];
+                              log("this show = ${show.title}");
+                              log("this show season count = ${show.seasons.length}");
 
                               if (_userShowList.length == 0) {
                                 return Container(

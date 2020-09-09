@@ -66,11 +66,14 @@ class InternalQueries {
           .get()
           .then((snapshot) {
         snapshot.docs.forEach((queryDocSnapshot) {
-          log("snapshot for number $i");
           showListToReturn.add(Show.fromJson(queryDocSnapshot.data()));
         });
       });
     }
+    showListToReturn.forEach((element) {
+      log("show to return ${element.title}");
+      log("show to return ${element.seasons.length}");
+    });
     return showListToReturn;
   }
 }

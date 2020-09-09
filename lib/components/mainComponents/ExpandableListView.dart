@@ -28,6 +28,8 @@ class _ExpandableListView extends State<ExpandableListView> {
     // TODO: implement initState
     super.initState();
     isWatched = false;
+
+    log("season = ${widget.season.number}");
   }
 
   _onTapRemoveEpisode(Episode epis) {
@@ -51,7 +53,7 @@ class _ExpandableListView extends State<ExpandableListView> {
       itemBuilder: (context, i) {
         return ExpansionTile(
           title: Text(
-            "${t.myShowsScreen.season} ${widget.season.number + 1}",
+            "${t.myShowsScreen.season} ${widget.season.number}",
             style: TextStyle(
               color: Palette().colorQuaternary,
               fontSize: 20.0,

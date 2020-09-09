@@ -1,4 +1,4 @@
-import 'dart:math';
+import 'dart:developer';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dizi_takip/classes/DatabaseClasses/Episode.dart';
@@ -31,6 +31,14 @@ class EpisodeShowBox extends StatefulWidget {
 }
 
 class _EpisodeShowBoxState extends State<EpisodeShowBox> {
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    log("came here with ${widget.show.title}");
+    log("came here with episode count ${widget.show.seasons.length}");
+  }
+
   @override
   Widget build(BuildContext context) {
     var showWatchNext = "S";
@@ -81,21 +89,6 @@ class _EpisodeShowBoxState extends State<EpisodeShowBox> {
         confirmDismiss: (direction) async {
           return widget.onDismissed(context, direction, widget.show);
         },
-        onDismissed: (direction) {
-          /*setState(() {
-            items.removeAt(index);
-          });*/
-          //widget.onDismissed(context, direction, widget.show);
-
-          Scaffold.of(context).showSnackBar(
-            SnackBar(
-              content: Text(" dismissed, direction : ${direction.toString()}"),
-              duration: Duration(
-                milliseconds: 600,
-              ),
-            ),
-          );
-        },
         child: GestureDetector(
           onTap: () {
             showMaterialModalBottomSheet(
@@ -125,8 +118,7 @@ class _EpisodeShowBoxState extends State<EpisodeShowBox> {
                             if (snapsh.hasData) {
                               UserFull newUserFull =
                                   UserFull.fromJson(snapsh.data.data());
-                              print(
-                                  "snapshot changed++++asd++++++++++++++++++++++++++++++++++++++++++++++++++");
+
                               return CustomScrollView(
                                 slivers: [
                                   SliverPersistentHeader(
@@ -143,6 +135,8 @@ class _EpisodeShowBoxState extends State<EpisodeShowBox> {
                                       (context, index) {
                                         Season _season =
                                             widget.show.seasons[index];
+                                        log("sliver show season = ${index}");
+                                        log("sliver show season = ${index}");
 
                                         return ExpandableListView(
                                           show: widget.show,
@@ -150,8 +144,7 @@ class _EpisodeShowBoxState extends State<EpisodeShowBox> {
                                           userFull: newUserFull,
                                         );
                                       },
-                                      childCount:
-                                          widget.show.seasons.length - 1,
+                                      childCount: widget.show.seasons.length,
                                     ),
                                   ),
                                 ],

@@ -39,7 +39,11 @@ class InitNewShow {
     final String seasonsResponse = await queryBuilder.getResponse();
     var season = jsonDecode(seasonsResponse) as List;
     newSeasons = season.map((s) => Season.fromJson(s)).toList();
-    for (int i = 0; i < newSeasons.length - 1; i++) {
+    int seasonInt = 0;
+    if (newSeasons[0].number.toString() == "0") {
+      newSeasons.removeAt(0);
+    }
+    for (int i = 0; i < newSeasons.length; i++) {
       queryBuilder = QueryBuilder(
           show: this.showTraktID,
           season: (i + 1).toString(),

@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:core';
+import 'dart:developer';
 import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -69,6 +70,7 @@ class QueryBuilder {
   }
 
   Future<String> getResponse() async {
+    log("query = $api_call");
     final response = await http.get(api_call, headers: defaultHeaders);
     return response.body;
   }
