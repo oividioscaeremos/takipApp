@@ -18,7 +18,6 @@ class InternalQueries {
 
     String season = nextSTR.split(' ')[1];
     String episode = nextSTR.split(' ')[3];
-    log("season: $season episode: $episode");
 
     for (int i = 0; i < show.seasons.length; i++) {
       for (int j = 0; j < show.seasons[i].episodes.length; j++) {

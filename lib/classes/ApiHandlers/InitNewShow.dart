@@ -55,7 +55,6 @@ class InitNewShow {
           episodesOfTheSeason.map((e) => Episode.fromJson(e)).toList();
       newSeasons[i].episodes = newEpisodes;
     }
-    print('here');
     newShow.seasons = newSeasons;
     firestore
         .collection('shows')

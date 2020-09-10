@@ -28,7 +28,6 @@ class FirebaseCRUD {
       });
     }
     if (_isInOldList) {
-      print("here motha");
       _fireStore.collection("users").doc(_user.username).update({
         "myOldShows.$showID": FieldValue.delete(),
         "myShows.$showID": _user.myOldShows[showID]
@@ -36,7 +35,6 @@ class FirebaseCRUD {
       _user.myShows.putIfAbsent(showID, () => _user.myOldShows[showID]);
       _user.myOldShows.remove(showID);
     } else {
-      print("im right hre");
       InitNewShow(showTraktID: showID).initShow().then((value) {
         _fireStore.collection("users").doc(_user.username).update({
           "myShows.$showID": new List<String>(),
@@ -103,11 +101,8 @@ class FirebaseCRUD {
     int _watchNextSeason = 1;
     int _watchNextEpisode = 1;
 
-    log("{episode.ids.trakt.toString()]} => ${episode.ids.trakt.toString()}\n{_user.myShows} => ${_user.myShows}");
-    log("before${_user.myShows[show.ids.trakt.toString()]}");
     _user.myShows[show.ids.trakt.toString()]
         .remove(episode.ids.trakt.toString());
-    log("after${_user.myShows[show.ids.trakt.toString()]}");
 
     _user.myShows.forEach((key, value) {
       value.forEach((element) {
@@ -125,9 +120,7 @@ class FirebaseCRUD {
       for (int j = 0; j < _show.seasons[i].episodes.length; j++) {
         Season s = _show.seasons[i];
         Episode epi = _show.seasons[i].episodes[j];
-        log("episode ${_show.seasons[i].episodes[j].toJson().toString()}");
         if (episodes.contains(epi.ids.trakt)) {
-          log("izledik biz bunu ${epi.season} and ${epi.number}");
           if (j + 1 == s.episodes.length) {
             _watchNextSeason = epi.season + 1;
             _watchNextEpisode = 1;
