@@ -18,6 +18,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
+import 'package:persistent_bottom_nav_bar/persistent-tab-view.dart';
 
 class MyShowsPage extends StatefulWidget {
   static String id = 'myShowsPage';
@@ -205,8 +206,24 @@ class _MyShowsPageState extends State<MyShowsPage> {
                                 onTap: () {
                                   FirebaseAuth.instance.signOut();
 
-                                  return Navigator.popAndPushNamed(
-                                      context, "/login_screen");
+                                  Navigator.of(context, rootNavigator: true)
+                                      .pushAndRemoveUntil(
+                                    MaterialPageRoute(
+                                      builder: (BuildContext context) {
+                                        return LoginScreen();
+                                      },
+                                    ),
+                                    (_) => false,
+                                  );
+
+                                  /*pushNewScreen(
+                                    context,
+                                    screen: LoginScreen(),
+                                    withNavBar:
+                                        false, // OPTIONAL VALUE. True by default.
+                                    pageTransitionAnimation:
+                                        PageTransitionAnimation.slideUp,
+                                  );*/
                                 },
                                 child: Icon(
                                   Icons.close,
